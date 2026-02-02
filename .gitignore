@@ -1,43 +1,36 @@
 @'
-# ---------------------------
 # Python
-# ---------------------------
 __pycache__/
 *.py[cod]
 *.pyd
 *.so
+.venv/
+venv/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
-.coverage
-.coverage.*
-htmlcov/
-dist/
-build/
-*.egg-info/
-.venv/
-venv/
 
-# ---------------------------
-# OS / Editors
-# ---------------------------
-.DS_Store
-Thumbs.db
+# Editors
 .vscode/
 .idea/
+.DS_Store
+Thumbs.db
 
-# ---------------------------
-# AspectNova runtime outputs
-# ---------------------------
+# Runtime / outputs (CRITICAL)
 .aspectnova/
+.aspectnova_archive/
+agent/.aspectnova_archive/
+tmp/
 .tmp_*/
 out/
 runs/
 runtime_workspace/
-tools/_archive_legacy/
 
-# if you ever keep local secrets
-.env
-.env.*
+# Artifacts / generated
+*.zip
 *.log
-'@ | Set-Content -Encoding utf8NoBOM .gitignore
+
+# Backups
+*.bak
+*.bak.*
+'@ | Set-Content -Encoding ascii .gitignore
