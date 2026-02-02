@@ -27,6 +27,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from core.storage.io_json import read_json, write_json
 from core.storage.hash_utils import sha256_file
+from core.storage.paths import WorkspacePaths
 
 
 
@@ -158,10 +159,11 @@ def archive_action(
 
 def write_trace_contract(root: Path, workspace_id: str, run_id: str, report_path: Path) -> Path:
     # NEW: include provenance_summary + artifacts so tests and org-grade traceability pass
-    contracts_dir = root / ".aspectnova" / "contracts" / workspace_id / run_id
+    paths = WorkspacePaths(root=root, workspace_id=workspace_id, run_id=run_id)
+    contracts_dir = paths.contracts_dir
     ensure_dir(contracts_dir)
-    archive_dir = root / ".aspectnova" / "archive" / workspace_id / run_id
-    contract_path = contracts_dir / "trace_contract.json"
+    archive_dir = paths.archive_dir
+    contract_path = paths.trace_contract_path
 
     report = read_json(str(report_path)) if report_path.exists() else {}
 
@@ -283,7 +285,7 @@ def main():
     if args.archive_base:
         archive_dir = Path(args.archive_base).resolve() / workspace_id / run_id
     else:
-        archive_dir = root / ".aspectnova" / "archive" / workspace_id / run_id
+        archive_dir = paths.archive_dir
     ensure_dir(archive_dir)
 
     zip_path = None
