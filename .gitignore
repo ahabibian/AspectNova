@@ -38,3 +38,7 @@ runtime_workspace/
 agent/src/agent.egg-info/
 *.egg-info/
 tools/_archive_legacy/
+# --- generated / local ---
+agent/src/agent.egg-info/
+*.egg-info/
+tools/_archive_legacy/
