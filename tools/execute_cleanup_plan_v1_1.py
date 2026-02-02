@@ -281,6 +281,9 @@ def main():
     workspace_id = args.workspace_id
     run_id = args.run_id
 
+    # v1.2: workspace paths (no behavior change)
+    paths = WorkspacePaths(root=root, workspace_id=workspace_id, run_id=run_id)
+
     # archive dir
     if args.archive_base:
         archive_dir = Path(args.archive_base).resolve() / workspace_id / run_id
