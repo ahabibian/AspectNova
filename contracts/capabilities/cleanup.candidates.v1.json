@@ -1,0 +1,60 @@
+{
+  "capability_id": "capability.cleanup.candidates",
+  "capability_version": "v1",
+  "action_type": "cleanup.candidates.v1",
+
+  "description": "Generate cleanup candidates with scoring/reasons. No deletion or modification. Read-only scan + proposal-grade output.",
+
+  "io": {
+    "inputs_schema": "schemas/actions/cleanup.candidates.v1.inputs.json",
+    "outputs_schema": "schemas/actions/cleanup.candidates.v1.outputs.json"
+  },
+
+  "effects": {
+    "filesystem": {
+      "read": true,
+      "write": false,
+      "delete": false
+    },
+    "network": false,
+    "process_spawn": false
+  },
+
+  "guards": {
+    "requires_safe_mode": true,
+    "requires_confirm": true,
+    "allowed_modes": ["SIMULATE"],
+
+    "data_minimization": {
+      "allow_content_read": false,
+      "hashing": {
+        "allowed": true,
+        "default_enabled": false,
+        "note": "Hashing is optional and must be explicitly enabled in inputs; use only for duplicate detection."
+      }
+    }
+  },
+
+  "limits": {
+    "defaults": {
+      "max_files": 50000,
+      "max_depth": 12,
+      "time_budget_sec": 60
+    },
+    "hard_caps": {
+      "max_files": 200000,
+      "max_depth": 50,
+      "time_budget_sec": 300
+    }
+  },
+
+  "telemetry": {
+    "log_events": ["candidate_found", "rule_applied", "limit_reached", "warning"],
+    "redact_paths_in_logs": false
+  },
+
+  "compatibility": {
+    "runner_min": "runner.v0",
+    "executor_min": "executor.v1.2"
+  }
+}

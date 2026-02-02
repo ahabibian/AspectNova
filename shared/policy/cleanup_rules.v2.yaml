@@ -1,0 +1,76 @@
+schema_version: cleanup_rules_v1
+
+meta:
+  id: cleanup_rules.v2
+  description: "Production-safe cleanup rules with explicit protection"
+  default_action: NOOP
+  default_risk: high
+
+globals:
+  protect_paths:
+    - "agent/src/"
+    - "agent/tests/"
+    - "contracts/"
+    - "shared/"
+    - "tools/"
+    - "docs/"
+    - "data/"
+    - "eii_engine/contracts/"
+    - "eii_engine/executor/"
+    - "eii_engine/runner/"
+    - "eii_engine/tools/"
+    - ".git/"
+    - ".aspectnova_archive/"
+
+  exclude_paths:
+    - ".git/"
+    - ".aspectnova_archive/"
+
+rules:
+  # --- Ephemeral ---
+  - id: python.pycache
+    match:
+      path_glob_any:
+        - "**/__pycache__"
+        - "**/__pycache__/**"
+    propose:
+      category: ephemeral
+      action: DELETE
+      risk: low
+      confidence: 0.95
+
+  - id: python.pyc
+    match:
+      path_glob_any:
+        - "**/*.pyc"
+    propose:
+      category: ephemeral
+      action: DELETE
+      risk: low
+      confidence: 0.95
+
+  # --- Packaging ---
+  - id: python.egginfo
+    match:
+      path_glob_any:
+        - "**/*.egg-info"
+        - "**/*.egg-info/**"
+    propose:
+      category: derived
+      action: DELETE
+      risk: low
+      confidence: 0.9
+
+  # --- Generated outputs ---
+  - id: derived.outputs
+    match:
+      path_glob_any:
+        - "out"
+        - "out/**"
+        - "eii_engine/out"
+        - "eii_engine/out/**"
+    propose:
+      category: derived
+      action: ARCHIVE
+      risk: medium
+      confidence: 0.7

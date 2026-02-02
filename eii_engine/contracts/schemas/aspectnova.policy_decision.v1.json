@@ -1,0 +1,134 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "aspectnova.policy_decision.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_id", "schema_version", "meta", "plan", "policy", "decisions", "summary", "signatures"],
+  "properties": {
+    "schema_id": { "const": "aspectnova.policy_decision" },
+    "schema_version": { "const": "aspectnova.policy_decision.v1" },
+
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["generated_at", "engine", "trace_id"],
+      "properties": {
+        "generated_at": { "type": "string", "minLength": 10 },
+        "trace_id": { "type": "string", "minLength": 8 },
+        "engine": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["name", "version"],
+          "properties": {
+            "name": { "type": "string", "minLength": 1 },
+            "version": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    },
+
+    "plan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_id", "schema_version", "idempotency", "source"],
+      "properties": {
+        "schema_id": { "type": "string", "minLength": 1 },
+        "schema_version": { "type": "string", "minLength": 1 },
+        "idempotency": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["plan_key"],
+          "properties": { "plan_key": { "type": "string", "minLength": 8 } }
+        },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["proposal_id", "scan_id"],
+          "properties": {
+            "proposal_id": { "type": "string", "minLength": 8 },
+            "scan_id": { "type": "string", "minLength": 8 }
+          }
+        }
+      }
+    },
+
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["profile", "allow_high_risk", "require_approval_medium"],
+      "properties": {
+        "profile": { "type": "string", "minLength": 1 },
+        "allow_high_risk": { "type": "boolean" },
+        "require_approval_medium": { "type": "boolean" }
+      }
+    },
+
+    "decisions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["command_id", "type", "target", "risk_level", "decision", "reason", "confidence", "projected_savings"],
+        "properties": {
+          "command_id": { "type": "string", "minLength": 8 },
+          "type": { "type": "string", "minLength": 1 },
+          "target": { "type": "object" },
+
+          "risk_level": { "enum": ["LOW", "MEDIUM", "HIGH"] },
+          "decision": { "enum": ["ALLOW", "BLOCK_HIGH_RISK", "REQUIRE_APPROVAL_MEDIUM", "SKIP_NOOP"] },
+          "reason": { "type": "string", "minLength": 1 },
+          "confidence": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+
+          "projected_savings": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["energy_kwh_per_month", "co2_g_per_month", "storage_tb_per_month"],
+            "properties": {
+              "energy_kwh_per_month": { "type": "number" },
+              "co2_g_per_month": { "type": "number" },
+              "storage_tb_per_month": { "type": "number" }
+            }
+          }
+        }
+      }
+    },
+
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["total", "allow", "blocked", "require_approval", "skipped_noop", "errors", "totals_allowed"],
+      "properties": {
+        "total": { "type": "integer", "minimum": 0 },
+        "allow": { "type": "integer", "minimum": 0 },
+        "blocked": { "type": "integer", "minimum": 0 },
+        "require_approval": { "type": "integer", "minimum": 0 },
+        "skipped_noop": { "type": "integer", "minimum": 0 },
+        "errors": { "type": "integer", "minimum": 0 },
+        "totals_allowed": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["energy_kwh_per_month", "co2_g_per_month", "storage_tb_per_month"],
+          "properties": {
+            "energy_kwh_per_month": { "type": "number" },
+            "co2_g_per_month": { "type": "number" },
+            "storage_tb_per_month": { "type": "number" }
+          }
+        }
+      }
+    },
+
+    "signatures": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requested", "method", "key_id", "signed_at", "signature"],
+      "properties": {
+        "requested": { "type": "boolean" },
+        "method": { "type": "string", "minLength": 1 },
+        "key_id": { "type": "string", "minLength": 1 },
+        "signed_at": { "type": "string" },
+        "signature": { "type": "string" }
+      }
+    }
+  }
+}

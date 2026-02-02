@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aspectnova.local/schemas/aspectnova.approval_token.v1.json",
+  "title": "AspectNova Approval Token v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_id", "schema_version", "meta", "token", "signature"],
+  "properties": {
+    "schema_id": {
+      "type": "string",
+      "const": "aspectnova.approval_token"
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "aspectnova.approval_token.v1"
+    },
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["generated_at", "issuer"],
+      "properties": {
+        "generated_at": { "type": "string", "minLength": 10 },
+        "issuer": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["tool", "version"],
+          "properties": {
+            "tool": { "type": "string", "minLength": 2 },
+            "version": { "type": "string", "minLength": 2 }
+          }
+        }
+      }
+    },
+    "token": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "token_id",
+        "plan_key",
+        "approved_by",
+        "issued_at",
+        "expires_at",
+        "approve_all",
+        "approved_commands",
+        "reason"
+      ],
+      "properties": {
+        "token_id": { "type": "string", "minLength": 8 },
+        "plan_key": { "type": "string", "minLength": 8 },
+        "approved_by": { "type": "string", "minLength": 2 },
+        "issued_at": { "type": "string", "minLength": 10 },
+        "expires_at": { "type": "string", "minLength": 10 },
+        "approve_all": { "type": "boolean" },
+        "approved_commands": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 6 },
+          "uniqueItems": true
+        },
+        "reason": { "type": "string", "minLength": 2 }
+      }
+    },
+    "signature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "key_id", "signed_at", "value"],
+      "properties": {
+        "method": { "type": "string", "const": "HMAC-SHA256" },
+        "key_id": { "type": "string", "minLength": 2 },
+        "signed_at": { "type": "string", "minLength": 10 },
+        "value": { "type": "string", "minLength": 16 }
+      }
+    }
+  }
+}

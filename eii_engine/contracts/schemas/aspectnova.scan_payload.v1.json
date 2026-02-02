@@ -1,0 +1,329 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aspectnova.se/schemas/aspectnova.scan_payload.v1.json",
+  "title": "AspectNova Scan Payload v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "meta", "context", "policy", "idempotency", "scan"],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "aspectnova.scan_payload.v1"
+    },
+
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sent_at", "producer"],
+      "properties": {
+        "sent_at": { "type": "string", "format": "date-time" },
+        "produced_at": { "type": "string", "format": "date-time" },
+
+        "producer": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["agent_id", "agent_version"],
+          "properties": {
+            "agent_id": { "type": "string", "minLength": 6, "maxLength": 128 },
+            "agent_version": { "type": "string", "minLength": 1, "maxLength": 64 },
+            "build": { "type": "string", "maxLength": 128 },
+            "platform": { "type": "string", "maxLength": 64 },
+            "host_fingerprint": { "type": "string", "maxLength": 256 }
+          }
+        },
+
+        "trace": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "trace_id": { "type": "string", "maxLength": 128 },
+            "span_id": { "type": "string", "maxLength": 128 }
+          }
+        }
+      }
+    },
+
+    "context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["org_id", "workspace_id", "device_id"],
+      "properties": {
+        "org_id": { "type": "string", "minLength": 6, "maxLength": 128 },
+        "workspace_id": { "type": "string", "minLength": 6, "maxLength": 128 },
+
+        "device_id": { "type": "string", "minLength": 6, "maxLength": 128 },
+        "device_owner_principal_id": { "type": "string", "maxLength": 128 },
+
+        "device_claim": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "claim_token_id": { "type": "string", "maxLength": 128 }
+          }
+        }
+      }
+    },
+
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["data_level", "path_handling", "content_allowed"],
+      "properties": {
+        "data_level": {
+          "type": "string",
+          "enum": ["L0", "L1", "L2"]
+        },
+        "path_handling": {
+          "type": "string",
+          "enum": ["none", "tokenized", "classified"]
+        },
+        "content_allowed": {
+          "type": "boolean",
+          "description": "Must be false for Privacy-first mode; true only for explicit org opt-in."
+        },
+        "fuzzy_hash_allowed": { "type": "boolean", "default": false },
+        "embeddings_allowed": { "type": "boolean", "default": false },
+        "ocr_text_allowed": { "type": "boolean", "default": false }
+      }
+    },
+
+    "idempotency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key"],
+      "properties": {
+        "key": { "type": "string", "minLength": 16, "maxLength": 256 },
+        "window_seconds": { "type": "integer", "minimum": 60, "maximum": 604800, "default": 86400 }
+      }
+    },
+
+    "scan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scan_id", "started_at", "finished_at", "summary"],
+      "properties": {
+        "scan_id": { "type": "string", "minLength": 10, "maxLength": 128 },
+        "started_at": { "type": "string", "format": "date-time" },
+        "finished_at": { "type": "string", "format": "date-time" },
+
+        "root_scope": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "scope_class": {
+              "type": "string",
+              "enum": ["user_home", "documents", "desktop", "downloads", "pictures", "videos", "music", "app_cache", "system", "external_drive", "unknown"]
+            },
+            "root_token": { "type": "string", "maxLength": 256 }
+          }
+        },
+
+        "summary": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["files_seen", "dirs_seen", "bytes_scanned", "errors_count"],
+          "properties": {
+            "files_seen": { "type": "integer", "minimum": 0 },
+            "dirs_seen": { "type": "integer", "minimum": 0 },
+            "bytes_scanned": { "type": "integer", "minimum": 0 },
+            "errors_count": { "type": "integer", "minimum": 0 },
+
+            "hash_coverage_ratio": { "type": "number", "minimum": 0, "maximum": 1 },
+            "fuzzy_hash_coverage_ratio": { "type": "number", "minimum": 0, "maximum": 1 }
+          }
+        },
+
+        "kpis": {
+          "type": "object",
+          "description": "KPI v2 block (already stable in your system). Keep it as an object to evolve independently.",
+          "additionalProperties": true
+        },
+
+        "chunk": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "part_no": { "type": "integer", "minimum": 1 },
+            "part_total": { "type": "integer", "minimum": 1 },
+            "continuation_token": { "type": "string", "maxLength": 512 }
+          }
+        },
+
+        "items": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/file_item" }
+        }
+      }
+    },
+
+    "extensions": {
+      "type": "object",
+      "description": "Forward-compatible space. Server may ignore unknown fields here.",
+      "additionalProperties": true
+    }
+  },
+
+  "$defs": {
+    "file_item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file_id", "size_bytes", "type_hint", "timestamps"],
+      "properties": {
+        "file_id": {
+          "type": "string",
+          "description": "Stable per-device file reference (agent-generated). Not a raw path.",
+          "minLength": 16,
+          "maxLength": 256
+        },
+
+        "name_hash": { "type": "string", "maxLength": 128 },
+        "path_token": { "type": "string", "maxLength": 256 },
+        "location_class": {
+          "type": "string",
+          "enum": ["user_home", "documents", "desktop", "downloads", "pictures", "videos", "music", "app_cache", "system", "external_drive", "unknown"]
+        },
+
+        "size_bytes": { "type": "integer", "minimum": 0 },
+
+        "type_hint": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["ext"],
+          "properties": {
+            "ext": { "type": "string", "maxLength": 16 },
+            "mime": { "type": "string", "maxLength": 128 }
+          }
+        },
+
+        "timestamps": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["modified_at"],
+          "properties": {
+            "created_at": { "type": "string", "format": "date-time" },
+            "modified_at": { "type": "string", "format": "date-time" },
+            "last_access_at": { "type": "string", "format": "date-time" }
+          }
+        },
+
+        "owner_principal_id": { "type": "string", "maxLength": 128 },
+
+        "hashes": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "sha256": { "type": "string", "pattern": "^[A-Fa-f0-9]{64}$" },
+            "blake3": { "type": "string", "maxLength": 128 },
+            "fuzzy": { "type": "string", "maxLength": 256 }
+          }
+        },
+
+        "signals": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "duplicate_cluster_id": { "type": "string", "maxLength": 128 },
+            "age_bucket_days": { "type": "integer", "minimum": 0 },
+            "last_seen_bucket_days": { "type": "integer", "minimum": 0 },
+            "risk_flags": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["very_large", "unknown_extension", "suspicious_ext", "orphaned_owner", "system_file", "temp_like", "cache_like"]
+              }
+            }
+          }
+        },
+
+        "content": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Only allowed when policy.content_allowed=true (L2).",
+          "properties": {
+            "ocr_text": { "type": "string", "maxLength": 50000 },
+            "embeddings_ref": { "type": "string", "maxLength": 256 }
+          }
+        }
+      }
+    }
+  },
+
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "policy": {
+            "properties": { "data_level": { "const": "L0" } },
+            "required": ["data_level"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "scan": {
+            "properties": {
+              "items": {
+                "items": {
+                  "not": {
+                    "anyOf": [
+                      { "required": ["signals"] },
+                      { "required": ["content"] }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "policy": {
+            "properties": { "data_level": { "const": "L1" } },
+            "required": ["data_level"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "scan": {
+            "properties": {
+              "items": {
+                "items": {
+                  "not": {
+                    "required": ["content"]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "policy": {
+            "properties": { "content_allowed": { "const": false } },
+            "required": ["content_allowed"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "scan": {
+            "properties": {
+              "items": {
+                "items": {
+                  "not": { "required": ["content"] }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

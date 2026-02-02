@@ -1,0 +1,152 @@
+{
+  "schema_id": "scan-result",
+  "schema_version": "v1",
+  "generated_at": "2026-01-17T03:45:30.714737Z",
+  "root": "C:\\Users\\ealihab\\OneDrive - Ericsson\\Desktop\\AspectNova\\agent",
+  "stats": {
+    "total_files": 28,
+    "total_bytes": 35115
+  },
+  "files": [
+    {
+      "path": ".gitignore",
+      "size": 60,
+      "mtime": 1767220857568894800
+    },
+    {
+      "path": "README.md",
+      "size": 383,
+      "mtime": 1767049700976126100
+    },
+    {
+      "path": "config.v1.yaml",
+      "size": 212,
+      "mtime": 1767223843930698700
+    },
+    {
+      "path": "output/scan_result.canonical.json",
+      "size": 3518,
+      "mtime": 1768602836170626800
+    },
+    {
+      "path": "output/scan_result.json",
+      "size": 3565,
+      "mtime": 1768602836155017700
+    },
+    {
+      "path": "pyproject.toml",
+      "size": 420,
+      "mtime": 1767009870158345100
+    },
+    {
+      "path": "src/agent.egg-info/PKG-INFO",
+      "size": 215,
+      "mtime": 1768621527382895500
+    },
+    {
+      "path": "src/agent.egg-info/SOURCES.txt",
+      "size": 486,
+      "mtime": 1768621527417913200
+    },
+    {
+      "path": "src/agent.egg-info/dependency_links.txt",
+      "size": 1,
+      "mtime": 1768621527393800300
+    },
+    {
+      "path": "src/agent.egg-info/requires.txt",
+      "size": 29,
+      "mtime": 1768621527394357000
+    },
+    {
+      "path": "src/agent.egg-info/top_level.txt",
+      "size": 6,
+      "mtime": 1768621527396341400
+    },
+    {
+      "path": "src/agent/__init__.py",
+      "size": 14,
+      "mtime": 1767009956298490000
+    },
+    {
+      "path": "src/agent/__main__.py",
+      "size": 83,
+      "mtime": 1767011955065779300
+    },
+    {
+      "path": "src/agent/cli.py",
+      "size": 3181,
+      "mtime": 1767095888794631600
+    },
+    {
+      "path": "src/agent/config.py",
+      "size": 4457,
+      "mtime": 1767088950807316400
+    },
+    {
+      "path": "src/agent/indexer.py",
+      "size": 1465,
+      "mtime": 1767048344765501800
+    },
+    {
+      "path": "src/agent/models.py",
+      "size": 0,
+      "mtime": 1766612287169278800
+    },
+    {
+      "path": "src/agent/normalize.py",
+      "size": 1082,
+      "mtime": 1767097125641429500
+    },
+    {
+      "path": "src/agent/output_schema.py",
+      "size": 1411,
+      "mtime": 1767088984558356000
+    },
+    {
+      "path": "src/agent/report.py",
+      "size": 1856,
+      "mtime": 1767048381901191000
+    },
+    {
+      "path": "src/agent/scanner.py",
+      "size": 5744,
+      "mtime": 1767097007457988200
+    },
+    {
+      "path": "src/agent/schema/config.schema.v1.json",
+      "size": 1321,
+      "mtime": 1767048526961412900
+    },
+    {
+      "path": "src/agent/schema/scan_index.schema.v1.json",
+      "size": 906,
+      "mtime": 1767019249891865800
+    },
+    {
+      "path": "src/agent/schema/scan_report.schema.v1.json",
+      "size": 1173,
+      "mtime": 1767019298617477300
+    },
+    {
+      "path": "src/agent/schema/scan_result.schema.v1.json",
+      "size": 1324,
+      "mtime": 1767096706176221800
+    },
+    {
+      "path": "tests/test_config_load.py",
+      "size": 425,
+      "mtime": 1767015279412431700
+    },
+    {
+      "path": "tests/test_output_schema.py",
+      "size": 673,
+      "mtime": 1767050747882839900
+    },
+    {
+      "path": "tests/test_output_schema_v1.py",
+      "size": 1105,
+      "mtime": 1767082918601875600
+    }
+  ]
+}

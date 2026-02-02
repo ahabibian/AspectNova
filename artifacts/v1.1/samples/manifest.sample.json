@@ -1,0 +1,20 @@
+{
+  "schema_id": "archive-manifest",
+  "schema_version": "v1.1",
+  "generated_at": "2026-01-30T23:24:28.431468+00:00",
+  "workspace_id": "ws_e2e",
+  "run_id": "e2e_full_20260130T232427Z",
+  "payload_zip_sha256": "cdebfeaf337d683fa015bfca0927e04e46050162e6051e4bc8354b7ca71ee083",
+  "items": [
+    {
+      "rel_path": "tmp/old.log",
+      "size_bytes": 14,
+      "sha256": "e2b9056ecfa7fbccd8527ef1682172703dd694a00191f2219d12d527f8bf3208"
+    },
+    {
+      "rel_path": "tmp/test.tmp",
+      "size_bytes": 14,
+      "sha256": "896213dad270d7ff0ec726f9aef3da45e2bfaabcd5dd4c1c489675f0d5fba317"
+    }
+  ]
+}

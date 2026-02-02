@@ -1,0 +1,8 @@
+{
+  "region": "SE",
+  "energy_per_tb_month_kwh": 3.0,
+  "co2_g_per_kwh": 50.0,
+  "electricity_price_sek_per_kwh": 1.5,
+  "reclaimable_fraction_default": 0.25,
+  "data_source": "static"
+}

@@ -1,0 +1,10 @@
+{
+  "type": "DELETE",
+  "target_kind": "FILE",
+  "target_id": "file_test_00000001",
+  "rationale": "Test action",
+  "expected_savings": { "bytes": 12345, "kwh_month": 0.01, "co2_g_month": 4.2 },
+  "risk": "LOW",
+  "confidence": 0.9,
+  "parameters": {}
+}

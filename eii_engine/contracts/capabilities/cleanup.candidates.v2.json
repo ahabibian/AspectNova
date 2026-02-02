@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aspectnova.dev/capabilities/cleanup.candidates/v2.json",
+  "title": "cleanup.candidates (v2) - executable folder targets",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_id", "schema_version", "generated_at", "mode", "inputs", "outputs"],
+  "properties": {
+    "schema_id": { "const": "cleanup.candidates" },
+    "schema_version": { "const": "v2" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "mode": { "type": "string", "enum": ["FOLDER_TARGETS_ONLY"] },
+    "inputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scan_root", "scan_payload_ref"],
+      "properties": {
+        "scan_root": { "type": "string", "minLength": 3 },
+        "scan_payload_ref": { "type": "string", "minLength": 3 }
+      }
+    },
+    "outputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["targets", "summary"],
+      "properties": {
+        "targets": {
+          "type": "array",
+          "minItems": 0,
+          "items": { "$ref": "#/$defs/target" }
+        },
+        "summary": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["target_count", "estimated_reclaim_bytes"],
+          "properties": {
+            "target_count": { "type": "integer", "minimum": 0 },
+            "estimated_reclaim_bytes": { "type": "integer", "minimum": 0 }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["target_type", "path", "estimated_bytes", "confidence", "risk", "reasons"],
+      "properties": {
+        "target_type": { "type": "string", "enum": ["DIRECTORY"] },
+        "path": { "type": "string", "minLength": 3 },
+        "estimated_bytes": { "type": "integer", "minimum": 0 },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "risk": { "type": "string", "enum": ["A", "B", "C"] },
+        "reasons": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}

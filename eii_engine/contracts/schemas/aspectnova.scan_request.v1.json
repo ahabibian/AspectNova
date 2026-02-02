@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "aspectnova.scan_request.v1",
+  "title": "AspectNova Scan Request",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_id", "schema_version", "context", "scan", "assumptions"],
+  "properties": {
+    "schema_id": { "const": "aspectnova.scan_request" },
+    "schema_version": { "const": "aspectnova.scan_request.v1" },
+    "generated_at": { "type": "string" },
+
+    "context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["org_id", "workspace_id", "device_id"],
+      "properties": {
+        "org_id": { "type": "string", "minLength": 1 },
+        "workspace_id": { "type": "string", "minLength": 1 },
+        "device_id": { "type": "string", "minLength": 1 }
+      }
+    },
+
+    "scan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["root", "limits"],
+      "properties": {
+        "root": { "type": "string", "minLength": 1 },
+
+        "include_globs": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["**/*"]
+        },
+        "exclude_globs": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": []
+        },
+
+        "limits": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["max_files", "max_depth"],
+          "properties": {
+            "max_files": { "type": "integer", "minimum": 1, "maximum": 200000 },
+            "max_depth": { "type": "integer", "minimum": 0, "maximum": 64 },
+            "time_budget_seconds": { "type": "integer", "minimum": 1, "maximum": 3600 }
+          }
+        },
+
+        "hashing": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": { "type": "boolean", "default": false }
+          }
+        }
+      }
+    },
+
+    "assumptions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "region",
+        "energy_per_tb_month_kwh",
+        "co2_g_per_kwh",
+        "electricity_price_sek_per_kwh",
+        "reclaimable_fraction_default"
+      ],
+      "properties": {
+        "region": { "type": "string", "minLength": 2, "maxLength": 8 },
+        "energy_per_tb_month_kwh": { "type": "number", "minimum": 0 },
+        "co2_g_per_kwh": { "type": "number", "minimum": 0 },
+        "electricity_price_sek_per_kwh": { "type": "number", "minimum": 0 },
+        "reclaimable_fraction_default": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    }
+  }
+}

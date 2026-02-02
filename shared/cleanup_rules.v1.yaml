@@ -1,0 +1,295 @@
+schema: aspectnova.cleanup_rules.v1
+version: v1
+generated_by: "policy-authoring"
+notes:
+  - "Rule-based cleanup target extraction"
+  - "All matches must carry matched_rule, category, confidence, risk"
+  - "If multiple rules match, use highest priority then highest confidence"
+
+# -------------------------
+# Global controls
+# -------------------------
+global:
+  # Never touch these paths unless user explicitly overrides (separate policy)
+  protected_path_globs:
+    - "**/.git/**"
+    - "**/.svn/**"
+    - "**/.hg/**"
+    - "**/.idea/**"          # IDE config is sensitive; don't auto delete
+    - "**/.vscode/**"        # same
+    - "**/src/**"
+    - "**/source/**"
+    - "**/data/**"
+    - "**/datasets/**"
+    - "**/assets/**"
+    - "**/documents/**"
+    - "**/docs/**"
+    - "**/secrets/**"
+    - "**/.env"
+    - "**/.env.*"
+    - "**/*.pem"
+    - "**/*.key"
+    - "**/*id_rsa*"
+    - "**/*id_ed25519*"
+
+  # Never match inside these (even if patterns match)
+  exclude_dir_globs:
+    - "**/.aspectnova_archive/**"
+    - "**/venv/**"
+    - "**/.venv/**"
+    - "**/env/**"
+    - "**/.envdir/**"
+    - "**/node_modules/**"   # node_modules cleanup is risky; handle by separate policy
+    - "**/.terraform/**"     # can be huge but risky; separate policy later
+
+  # Minimal evidence gating
+  confidence_floor: 0.60
+
+  # Default actions by category (can be overridden per rule)
+  default_actions:
+    ephemeral: DELETE
+    temp: ARCHIVE
+    derived: ARCHIVE
+    ambiguous: NOOP
+
+  # Default risk by category
+  default_risk:
+    ephemeral: low
+    temp: medium
+    derived: medium
+    ambiguous: high
+
+# -------------------------
+# Rule priority semantics
+# higher number = higher priority
+# -------------------------
+rules:
+
+  # ==========
+  # Python
+  # ==========
+  - id: python.cache.dir
+    priority: 90
+    category: ephemeral
+    risk: low
+    action: DELETE
+    match:
+      dir_name_exact:
+        - "__pycache__"
+    confidence: 0.98
+    rationale: "Python bytecode cache; rebuildable"
+    tags: ["python", "cache"]
+
+  - id: python.bytecode.files
+    priority: 85
+    category: ephemeral
+    risk: low
+    action: DELETE
+    match:
+      file_ext:
+        - ".pyc"
+        - ".pyo"
+    confidence: 0.95
+    rationale: "Python compiled artifacts; rebuildable"
+    tags: ["python", "artifact"]
+
+  - id: python.pytest.cache
+    priority: 80
+    category: ephemeral
+    risk: low
+    action: DELETE
+    match:
+      dir_name_exact:
+        - ".pytest_cache"
+    confidence: 0.97
+    rationale: "Pytest cache; rebuildable"
+    tags: ["python", "test", "cache"]
+
+  - id: python.typecheck.mypy
+    priority: 75
+    category: ephemeral
+    risk: low
+    action: DELETE
+    match:
+      dir_name_exact:
+        - ".mypy_cache"
+    confidence: 0.95
+    rationale: "Mypy cache; rebuildable"
+    tags: ["python", "cache"]
+
+  - id: python.coverage
+    priority: 70
+    category: derived
+    risk: medium
+    action: ARCHIVE
+    match:
+      file_name_exact:
+        - ".coverage"
+      dir_name_exact:
+        - "htmlcov"
+        - "coverage"
+    confidence: 0.78
+    rationale: "Coverage artifacts; may be useful for audits"
+    tags: ["python", "report"]
+
+  # ==========
+  # Node / JS tooling
+  # ==========
+  - id: node.tool.cache.npm
+    priority: 65
+    category: temp
+    risk: medium
+    action: ARCHIVE
+    match:
+      dir_name_exact:
+        - ".npm"
+        - ".pnpm-store"
+        - ".yarn"
+    confidence: 0.75
+    rationale: "Package manager caches; can be regenerated but sometimes needed"
+    tags: ["node", "cache"]
+
+  - id: node.build.artifacts
+    priority: 60
+    category: derived
+    risk: medium
+    action: ARCHIVE
+    match:
+      dir_name_exact:
+        - "dist"
+        - "build"
+        - ".next"
+        - ".nuxt"
+        - ".svelte-kit"
+    confidence: 0.74
+    rationale: "Build outputs; usually reproducible but often needed for release checks"
+    tags: ["node", "build"]
+
+  - id: node.tool.cache.generic
+    priority: 58
+    category: ephemeral
+    risk: low
+    action: DELETE
+    match:
+      dir_name_exact:
+        - ".cache"
+      # do not touch if under protected/excluded dirs handled globally
+    confidence: 0.65
+    rationale: "Generic tool cache; safe-ish but lower confidence"
+    tags: ["node", "cache"]
+
+  # ==========
+  # Generic temp
+  # ==========
+  - id: generic.temp.dirs
+    priority: 55
+    category: temp
+    risk: medium
+    action: ARCHIVE
+    match:
+      dir_name_exact:
+        - "tmp"
+        - "temp"
+        - "temps"
+        - "temporary"
+    confidence: 0.72
+    rationale: "Temporary directories; may contain useful short-lived artifacts"
+    tags: ["temp"]
+
+  - id: generic.os.junk
+    priority: 50
+    category: ephemeral
+    risk: low
+    action: DELETE
+    match:
+      file_name_exact:
+        - ".DS_Store"
+        - "Thumbs.db"
+        - "desktop.ini"
+    confidence: 0.99
+    rationale: "OS junk files"
+    tags: ["os"]
+
+  # ==========
+  # Logs / reports / exports (handle carefully)
+  # ==========
+  - id: generic.logs
+    priority: 45
+    category: derived
+    risk: medium
+    action: ARCHIVE
+    match:
+      dir_name_exact:
+        - "logs"
+        - "log"
+      file_ext:
+        - ".log"
+    confidence: 0.70
+    rationale: "Logs are derived but may be important for incident/audit"
+    tags: ["logs"]
+
+  - id: generic.reports.exports
+    priority: 44
+    category: derived
+    risk: medium
+    action: ARCHIVE
+    match:
+      dir_name_exact:
+        - "reports"
+        - "report"
+        - "exports"
+        - "export"
+        - "out"
+        - "output"
+        - "generated"
+    confidence: 0.68
+    rationale: "Derived outputs; archive by default for safety"
+    tags: ["reports", "output"]
+
+  # ==========
+  # Archives inside workspace (avoid deleting)
+  # ==========
+  - id: generic.user.archives
+    priority: 40
+    category: ambiguous
+    risk: high
+    action: NOOP
+    match:
+      file_ext:
+        - ".zip"
+        - ".7z"
+        - ".rar"
+        - ".tar"
+        - ".gz"
+    confidence: 0.62
+    rationale: "Archives may be important user artifacts; never auto touch"
+    tags: ["archive"]
+
+  # ==========
+  # Fallback: ambiguous if name smells like cache but not strong
+  # ==========
+  - id: fallback.ambiguous.cachey
+    priority: 10
+    category: ambiguous
+    risk: high
+    action: NOOP
+    match:
+      dir_name_contains:
+        - "cache"
+        - "caches"
+    confidence: 0.60
+    rationale: "Weak signal; keep NOOP to avoid accidental deletion"
+    tags: ["fallback"]
+
+# -------------------------
+# Execution policy hints
+# -------------------------
+execution_hints:
+  # For production: require approval if any medium/high risk actions present
+  approval_required_if_risk_at_least: medium
+  # For DELETE: if size > threshold, recommend archive instead (executor may override)
+  delete_size_soft_limit_mb: 200
+  # Always include rollback for ARCHIVE and MOVE
+  require_rollback_for:
+    - ARCHIVE
+    - MOVE

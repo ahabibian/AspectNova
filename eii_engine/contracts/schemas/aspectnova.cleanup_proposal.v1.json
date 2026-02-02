@@ -1,0 +1,158 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aspectnova.se/schemas/aspectnova.cleanup_proposal.v1.json",
+  "title": "AspectNova Cleanup Proposal v1 (Simulation Output)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "meta", "context", "policy", "source_scan", "proposal"],
+  "properties": {
+    "schema_version": { "type": "string", "const": "aspectnova.cleanup_proposal.v1" },
+
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["generated_at", "engine"],
+      "properties": {
+        "generated_at": { "type": "string", "format": "date-time" },
+        "engine": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["engine_id", "engine_version", "ruleset_version"],
+          "properties": {
+            "engine_id": { "type": "string", "maxLength": 128 },
+            "engine_version": { "type": "string", "maxLength": 64 },
+            "ruleset_version": { "type": "string", "maxLength": 64 }
+          }
+        }
+      }
+    },
+
+    "context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["org_id", "workspace_id", "device_id"],
+      "properties": {
+        "org_id": { "type": "string", "maxLength": 128 },
+        "workspace_id": { "type": "string", "maxLength": 128 },
+        "device_id": { "type": "string", "maxLength": 128 }
+      }
+    },
+
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["data_level", "simulation_only"],
+      "properties": {
+        "data_level": { "type": "string", "enum": ["L0", "L1", "L2"] },
+        "simulation_only": { "type": "boolean", "const": true }
+      }
+    },
+
+    "source_scan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scan_id", "idempotency_key"],
+      "properties": {
+        "scan_id": { "type": "string", "maxLength": 128 },
+        "idempotency_key": { "type": "string", "maxLength": 256 }
+      }
+    },
+
+    "proposal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["summary", "actions"],
+      "properties": {
+        "summary": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["actions_count", "estimated_bytes_affected"],
+          "properties": {
+            "actions_count": { "type": "integer", "minimum": 0 },
+            "estimated_bytes_affected": { "type": "integer", "minimum": 0 },
+            "risk_breakdown": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "low": { "type": "integer", "minimum": 0 },
+                "medium": { "type": "integer", "minimum": 0 },
+                "high": { "type": "integer", "minimum": 0 }
+              }
+            }
+          }
+        },
+
+        "actions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/action_item" }
+        }
+      }
+    },
+
+    "extensions": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+
+  "$defs": {
+    "action_item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["action_id", "action_type", "targets", "confidence", "risk", "rationale"],
+      "properties": {
+        "action_id": { "type": "string", "maxLength": 128 },
+
+        "action_type": {
+          "type": "string",
+          "enum": ["SUGGEST_DELETE", "SUGGEST_ARCHIVE", "SUGGEST_MOVE", "SUGGEST_DEDUP", "SUGGEST_REVIEW"]
+        },
+
+        "targets": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["file_ids"],
+          "properties": {
+            "file_ids": {
+              "type": "array",
+              "items": { "type": "string", "maxLength": 256 },
+              "minItems": 1
+            },
+            "duplicate_cluster_id": { "type": "string", "maxLength": 128 }
+          }
+        },
+
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+
+        "risk": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["level", "reversible"],
+          "properties": {
+            "level": { "type": "string", "enum": ["low", "medium", "high"] },
+            "reversible": { "type": "boolean" }
+          }
+        },
+
+        "rationale": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["rule_ids", "signals_used"],
+          "properties": {
+            "rule_ids": {
+              "type": "array",
+              "items": { "type": "string", "maxLength": 64 },
+              "minItems": 1
+            },
+            "signals_used": {
+              "type": "array",
+              "items": { "type": "string", "maxLength": 64 },
+              "minItems": 1
+            },
+            "explain": { "type": "string", "maxLength": 2000 }
+          }
+        }
+      }
+    }
+  }
+}

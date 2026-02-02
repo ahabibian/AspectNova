@@ -1,0 +1,106 @@
+flowchart LR
+  %% =========================
+  %% LAYERS
+  %% =========================
+  subgraph UI["UI Layer (Base44 / Web)"]
+    UI1["Scan Request Form\n(root, include/exclude globs,\nlimits, policy profile, simulation_only)"]
+    UI2["Results Dashboard\n(EII score, breakdown by ext,\nreclaimable, risk summary)"]
+    UI3["Review Screen\n(cleanup candidates list,\napprove/reject, overrides)"]
+    UI4["Execution View\n(dry-run report, simulated report,\nreal execution report)"]
+  end
+
+  subgraph API["Service/API Layer (Future SaaS Boundary)"]
+    API1["POST /scan-requests"]
+    API2["GET /scans/:scan_id"]
+    API3["POST /cleanup-proposals"]
+    API4["POST /command-plans"]
+    API5["POST /policy-decisions"]
+    API6["POST /approvals/tokens"]
+    API7["POST /execute\n(mode=dryrun|simulated|real)"]
+  end
+
+  subgraph PIPE["Local Pipeline (Now: CLI/BAT)"]
+    BAT["run_pipeline.bat\n(Orchestrator)"]
+  end
+
+  subgraph CONTRACTS["Contracts (Schemas)"]
+    S0["aspectnova.scan_request.v1.json"]
+    S1["aspectnova.scan_payload.v1.json"]
+    S2["aspectnova.cleanup_proposal.v1.json"]
+    S3["aspectnova.command.v1.json"]
+    S4["aspectnova.command_plan.v1.json"]
+    S5["aspectnova.policy_decision.v1.json"]
+    S6["aspectnova.approval_token.v1.json"]
+    S7["aspectnova.execution_report.v1.json"]
+  end
+
+  subgraph TOOLS["Tools/Engines (Now: Python scripts)"]
+    T1["run_eii.py\nFilesystem scanner + EII calculator"]
+    T2["build_scan_payload.py\n(scan_request + scan_result + eii_result)\n-> scan_payload"]
+    T3["validate_schema.py\n(JSONSchema validator)"]
+    T4["enforce_policy.py\n(path/name stripping by data_level)"]
+    T5["cleanup_adapter.py\nCapability: cleanup.candidates.v1\n-> cleanup_proposal"]
+    T6["build_command_plan.py\nproposal -> command_plan"]
+    T7["policy_engine_v1.py\nplan -> policy_decision"]
+    T8["issue_approval_token.py\nplan -> approval_token"]
+    T9["verify_approval_token.py\napproval_token + plan_key -> PASS/FAIL"]
+    T10["execute_plan_dryrun.py\nplan -> execution_report (DRY_RUN)"]
+    T11["execute_plan_v1_1.py\n(plan + policy_decision + optional token)\n-> execution_report (SIM/REAL)"]
+  end
+
+  subgraph ART["Artifacts (Out folder)"]
+    A0["out/scan_request.test.json\n✅ PASS schema"]
+    A1["out/eii_result.json\n✅ OK"]
+    A2["out/scan_payload.json\n✅ PASS schema"]
+    A3["out/cleanup_proposal.json\n✅ OK"]
+    A4["out/command_plan.json\n✅ OK"]
+    A5["out/policy_decision.json\n✅ OK"]
+    A6["out/approval_token.json\n✅ OK + verify PASS"]
+    A7["out/execution_report.dryrun.json\n✅ PASS schema"]
+    A8["out/execution_report.sim.no_token.json\n✅ PASS + BLOCKED_POLICY (expected)"]
+    A9["out/execution_report.sim.with_token.json\n✅ PASS + WILL_EXECUTE (expected)"]
+  end
+
+  %% =========================
+  %% FLOWS (CURRENT STATE)
+  %% =========================
+  UI1 --> API1 --> BAT
+  BAT --> T3 --> S0
+  BAT --> T1 --> A1
+  BAT --> T2 --> A2
+  BAT --> T3 --> S1
+  BAT --> T4 --> A2
+  BAT --> T5 --> A3
+  BAT --> T6 --> A4
+  BAT --> T10 --> A7
+  BAT --> T3 --> S7
+
+  %% =========================
+  %% FLOWS (APPROVAL GATE PATH)
+  %% =========================
+  UI3 --> API5 --> T7 --> A5
+  UI3 --> API6 --> T8 --> A6
+  A4 --> T9 --> A6
+  A4 --> T11 --> A8
+  A6 --> T11 --> A9
+
+  %% =========================
+  %% SCHEMAS LINKS (REFERENCE)
+  %% =========================
+  S0 -. validates .- A0
+  S1 -. validates .- A2
+  S2 -. validates .- A3
+  S4 -. validates .- A4
+  S5 -. validates .- A5
+  S6 -. validates .- A6
+  S7 -. validates .- A7
+
+  %% =========================
+  %% STATUS TAGS
+  %% =========================
+  classDef ok fill:#d4edda,stroke:#1e7e34,color:#1b5e20;
+  classDef todo fill:#fff3cd,stroke:#856404,color:#6c5200;
+  classDef risk fill:#f8d7da,stroke:#721c24,color:#6a1a21;
+
+  class A0,A1,A2,A3,A4,A5,A6,A7,A8,A9 ok;
+  class UI2,UI4,API1,API2,API3,API4,API5,API6,API7 todo;

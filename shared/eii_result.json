@@ -1,0 +1,88 @@
+{
+  "schema_id": "eii-result",
+  "schema_version": "v1",
+  "generated_at": "2026-01-03T16:01:46.174185Z",
+  "source_scan": {
+    "schema_id": "scan-result",
+    "schema_version": "v1",
+    "generated_at": "2026-01-03T16:01:45.330878Z",
+    "root": "C:\\Users\\ealihab\\OneDrive - Ericsson\\Desktop\\Agent"
+  },
+  "engine_version": "eii-engine-1.0.0",
+  "aggregates": {
+    "file_count": 2482,
+    "total_size_bytes": 9817221900,
+    "total_size_gb": 9.14300037547946,
+    "by_extension_gb": {
+      "(none)": 4.10713255405426e-07,
+      "yaml": 1.9744038581848145e-07,
+      "toml": 3.91155481338501e-07,
+      "md": 5.125068128108978e-06,
+      "json": 0.0008254442363977432,
+      "py": 2.0019710063934326e-05,
+      "xlsx": 0.00020893476903438568,
+      "txt": 3.09748575091362e-05,
+      "png": 2.2615337558090687,
+      "docx": 0.10935258492827415,
+      "pdf": 1.4320965465158224,
+      "jpg": 0.15531033277511597,
+      "log": 2.0461156964302063e-06,
+      "kcb": 2.29664146900177e-06,
+      "lock": 0.0,
+      "kdf": 0.0031404495239257812,
+      "kdf-journal": 0.0,
+      "kpf": 0.0016008354723453522,
+      "exe": 0.4776602014899254,
+      "pptx": 0.09392393939197063,
+      "mp4": 0.0020508132874965668,
+      "jpeg": 0.013083374127745628,
+      "jsx": 1.1185184121131897e-05,
+      "doc": 0.00024890899658203125,
+      "msi": 1.867354393005371,
+      "zip": 2.1262526912614703,
+      "ini": 0.00015577301383018494,
+      "mst": 0.0003814697265625,
+      "cab": 0.23675876017659903,
+      "xml": 6.649550050497055e-05,
+      "dll": 0.07934325933456421,
+      "htm": 5.17209991812706e-05,
+      "gif": 0.0006245281547307968,
+      "tif": 0.28090251609683037
+    }
+  },
+  "energy_impact": {
+    "monthly": {
+      "energy_kwh": 0.0196344438,
+      "co2_kg": 0.00098172219,
+      "cost_sek": 0.029451665700000004
+    },
+    "annual": {
+      "energy_kwh": 0.23561332560000003,
+      "co2_kg": 0.011780666280000001,
+      "cost_sek": 0.35341998840000005
+    }
+  },
+  "eii_score": {
+    "value": 15,
+    "grade": "A",
+    "explanation": {
+      "primary_drivers": [
+        "Low overall storage footprint"
+      ]
+    }
+  },
+  "optimization_potential": {
+    "reclaimable_storage_gb": 2.742900112643838,
+    "energy_saving_kwh_year": 0.07068399768000001,
+    "co2_reduction_kg_year": 0.003534199884,
+    "cost_saving_sek_year": 0.10602599652000001
+  },
+  "assumptions": {
+    "region": "SE",
+    "energy_per_tb_month_kwh": 2.0,
+    "co2_g_per_kwh": 50.0,
+    "electricity_price_sek_per_kwh": 1.5,
+    "reclaimable_fraction_default": 0.3,
+    "data_source": "agent_scan_v1"
+  }
+}

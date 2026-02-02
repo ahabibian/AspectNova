@@ -1,0 +1,119 @@
+global:
+  exclude_paths:
+    - '^\.git(/|$)'
+    - '^\.venv(/|$)'
+    - '^node_modules(/|$)'
+    - '^\.aspectnova_archive(/|$)'
+
+rules:
+  # --- High-confidence cache / temp: DELETE ---
+  - id: python.cache.__pycache__
+    priority: 10
+    category: ephemeral
+    risk: low
+    action: DELETE
+    confidence: 0.95
+    rationale: "Python bytecode cache directory"
+    tags: [python, cache]
+    match:
+      path_regex: '(^|/)(__pycache__)(/|$)'
+      kind: dir
+
+  - id: python.cache.pyc
+    priority: 11
+    category: ephemeral
+    risk: low
+    action: DELETE
+    confidence: 0.95
+    rationale: "Python bytecode cache files"
+    tags: [python, cache]
+    match:
+      path_regex: '\.(pyc|pyo)$'
+      kind: file
+
+  - id: pytest.cache
+    priority: 12
+    category: ephemeral
+    risk: low
+    action: DELETE
+    confidence: 0.9
+    rationale: "pytest cache"
+    tags: [python, cache]
+    match:
+      path_regex: '(^|/)\.pytest_cache(/|$)'
+      kind: dir
+
+  - id: tooling.caches
+    priority: 13
+    category: ephemeral
+    risk: low
+    action: DELETE
+    confidence: 0.85
+    rationale: "Common tooling caches"
+    tags: [cache]
+    match:
+      path_regex: '(^|/)\.(mypy_cache|ruff_cache|cache|tox|nox)(/|$)'
+      kind: dir
+
+  # --- Derived outputs: ARCHIVE (safe default) ---
+  - id: derived.outputs.out_root
+    priority: 30
+    category: derived
+    risk: medium
+    action: ARCHIVE
+    confidence: 0.75
+    rationale: "Generated output folder (root)"
+    tags: [output, derived]
+    match:
+      path_regex: '^out(/|$)'
+      kind: dir
+
+  - id: derived.outputs.eii_engine_out
+    priority: 31
+    category: derived
+    risk: medium
+    action: ARCHIVE
+    confidence: 0.75
+    rationale: "Generated output folder (eii_engine/out)"
+    tags: [output, derived]
+    match:
+      path_regex: '^eii_engine/out(/|$)'
+      kind: dir
+
+  # --- Build artifacts: ARCHIVE (not DELETE) ---
+  - id: python.build.artifacts
+    priority: 40
+    category: derived
+    risk: medium
+    action: ARCHIVE
+    confidence: 0.7
+    rationale: "Python packaging artifacts"
+    tags: [python, build]
+    match:
+      path_regex: '(^|/)(dist|build|\.eggs)(/|$)'
+      kind: dir
+
+  - id: python.build.egg_info
+    priority: 41
+    category: derived
+    risk: medium
+    action: ARCHIVE
+    confidence: 0.7
+    rationale: "egg-info is derived from packaging/install"
+    tags: [python, build]
+    match:
+      path_regex: '(^|/)[^/]+\.egg-info(/|$)'
+      kind: dir
+
+  # --- Default: NOOP (protect everything else) ---
+  - id: protected.noop
+    priority: 900
+    category: protected
+    risk: high
+    action: NOOP
+    confidence: 1.0
+    rationale: "Default protect: do nothing unless explicitly matched above"
+    tags: [protected]
+    match:
+      path_regex: '.*'
+      kind: any

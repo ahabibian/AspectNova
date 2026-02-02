@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aspectnova.local/schemas/action_contract.v1.json",
+  "title": "AspectNova Action Contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_id",
+    "schema_version",
+    "action_id",
+    "type",
+    "mode",
+    "inputs",
+    "constraints",
+    "guards",
+    "audit"
+  ],
+  "properties": {
+    "schema_id": {
+      "type": "string",
+      "const": "action-contract"
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "v1"
+    },
+
+    "action_id": {
+      "type": "string",
+      "minLength": 6,
+      "maxLength": 128,
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:-]*$",
+      "description": "Unique action identifier for tracing/audit (stable across retries)."
+    },
+
+    "type": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 128,
+      "pattern": "^[a-z][a-z0-9_.-]*\\.v[0-9]+$",
+      "description": "Action type identifier, e.g. cleanup.candidates.v1"
+    },
+
+    "mode": {
+      "type": "string",
+      "enum": ["SIMULATE", "PREPARE", "APPLY"],
+      "description": "Execution intent. Guardrails + capability must allow the requested mode."
+    },
+
+    "inputs": {
+      "type": "object",
+      "description": "Action-specific inputs. Must be validated against the action inputs schema."
+    },
+
+    "constraints": {
+      "type": "object",
+      "description": "Action-specific constraints (safety/limits). Must be validated by executor or runner."
+    },
+
+    "guards": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requires_confirm", "requires_safe_mode", "allowed_modes"],
+      "properties": {
+        "requires_confirm": {
+          "type": "boolean",
+          "description": "If true, runner must require confirm_received before executing."
+        },
+        "requires_safe_mode": {
+          "type": "boolean",
+          "description": "If true, runner must require safe_mode=true to execute."
+        },
+        "allowed_modes": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "enum": ["SIMULATE", "PREPARE", "APPLY"] },
+          "uniqueItems": true,
+          "description": "Modes the action is allowed to run under (must match capability too)."
+        }
+      }
+    },
+
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["created_at", "created_by", "toolchain"],
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "created_by": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 128,
+          "description": "Emitter, e.g. runner.v0"
+        },
+        "toolchain": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["executor", "policy_engine"],
+          "properties": {
+            "executor": { "type": "string", "minLength": 3, "maxLength": 128 },
+            "policy_engine": { "type": "string", "minLength": 3, "maxLength": 128 }
+          }
+        },
+        "correlation_id": {
+          "type": "string",
+          "minLength": 6,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._:-]*$",
+          "description": "Optional tracing id to connect plan/run/report."
+        }
+      }
+    }
+  }
+}

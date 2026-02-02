@@ -1,0 +1,4 @@
+__pycache__/
+*.pyc
+data/scan_result.json
+out/*.json

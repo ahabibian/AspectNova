@@ -1,0 +1,21 @@
+core/
+  app/
+    api.py                # FastAPI endpoints (events/state/replay)
+    settings.py
+  domain/
+    schemas/              # jsonschema files
+    registry/             # event-types.v1.json
+    canonical.py          # canonical json
+    crypto.py             # hash + hmac verify
+    validators.py         # step1 + step1.1 validators
+    handlers/             # handlers_v1.py
+    replay.py             # replay engine core
+    state.py              # SystemState models
+    checkpoint.py         # checkpoint read/write
+  storage/
+    event_store.py        # interface
+    sqlite_store.py       # impl v1
+  tests/
+    test_golden_replay.py
+    test_tamper.py
+    test_invariants.py

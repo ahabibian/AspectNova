@@ -1,0 +1,36 @@
+{
+  "schema_id": "action-taxonomy",
+  "schema_version": "v1",
+  "generated_at": "REPLACE_AT_RUNTIME",
+  "supported_actions": [
+    {
+      "action_type": "analysis",
+      "runner_capable": true,
+      "requires_execute_flag": false,
+      "description": "Pure analysis step. No side-effects. Safe to run without --execute."
+    },
+    {
+      "action_type": "execution",
+      "runner_capable": true,
+      "requires_execute_flag": true,
+      "description": "Side-effecting step. Must only run with --execute (and optionally --confirm)."
+    },
+    {
+      "action_type": "report",
+      "runner_capable": false,
+      "requires_execute_flag": false,
+      "description": "Reporting/export step. Not executed by runner_v0. Handled by reporter tool."
+    },
+    {
+      "action_type": "proposal",
+      "runner_capable": false,
+      "requires_execute_flag": false,
+      "description": "Commercial/proposal generation. Not executed by runner_v0. Handled by proposal exporter tool."
+    }
+  ],
+  "runner_policy": {
+    "allowed_action_types": ["analysis", "execution"],
+    "unknown_action_behavior": "skip",
+    "skip_message_template": "unknown action type '{action_type}' (skipped)"
+  }
+}

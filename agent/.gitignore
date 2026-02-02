@@ -1,0 +1,39 @@
+############################
+# AspectNova Engine Ignore #
+############################
+
+# --- Python ---
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pytest_cache/
+.venv/
+env/
+venv/
+
+# --- OS junk ---
+.DS_Store
+Thumbs.db
+
+# --- Editor ---
+.vscode/
+.idea/
+
+# --- TEMP WORKSPACES (E2E / Test Sandboxes) ---
+.tmp_*/
+*.tmp_workspace/
+
+# --- RUNTIME OUTPUTS (reproducible) ---
+out/
+runs/
+
+# --- ENGINE ARCHIVE (stateful history – keep locally, not in git) ---
+.aspectnova/archive/
+
+# --- Logs ---
+*.log
+
+# --- Secrets / env ---
+.env
+.env.*

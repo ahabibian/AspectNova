@@ -1,0 +1,145 @@
+schema_version: cleanup_rules_v1
+
+meta:
+  id: cleanup_rules.v2
+  description: "Low-risk cleanup rules (production-grade) + keep archive for derived outputs"
+  default_action: ARCHIVE
+  default_risk: medium
+
+globals:
+  # Absolute safety rails: never touch these (even if matched elsewhere)
+  protect_paths:
+    - ".git/"
+    - ".aspectnova_archive/"
+    - "agent/.aspectnova_archive/"
+    - "eii_engine/contracts/"
+    - "eii_engine/executor/"
+    - "eii_engine/runner/"
+    - "eii_engine/tools/"
+    - "agent/src/"
+    - "shared/"
+    - "tools/"
+
+  # Global excludes for targeting (these can still appear in scan but won't become targets)
+  exclude_paths:
+    - ".git/"
+    - ".aspectnova_archive/"
+    - "agent/.aspectnova_archive/"
+
+rules:
+  # -----------------------
+  # LOW-RISK DELETE (safe)
+  # -----------------------
+
+  - id: python.bytecode.pyc
+    description: "Delete Python .pyc files"
+    match:
+      path_glob_any:
+        - "**/*.pyc"
+    propose:
+      category: ephemeral
+      action: DELETE
+      risk: low
+      confidence: 0.95
+      tags: ["python", "bytecode"]
+      rationale: "Compiled bytecode; safe to delete (regenerates)"
+
+  - id: python.cache.pycache
+    description: "Delete __pycache__ directories (not source)"
+    match:
+      path_glob_any:
+        - "**/__pycache__"
+        - "**/__pycache__/**"
+    propose:
+      category: ephemeral
+      action: DELETE
+      risk: low
+      confidence: 0.95
+      tags: ["python", "cache"]
+      rationale: "__pycache__ is derived; safe to delete (regenerates)"
+
+  - id: python.egg_info
+    description: "Delete Python *.egg-info (derived metadata)"
+    match:
+      path_glob_any:
+        - "**/*.egg-info"
+        - "**/*.egg-info/**"
+    propose:
+      category: derived
+      action: DELETE
+      risk: low
+      confidence: 0.9
+      tags: ["python", "packaging"]
+      rationale: "Packaging metadata; safe to regenerate"
+
+  - id: temp.logs
+    description: "Delete common log files"
+    match:
+      path_glob_any:
+        - "**/*.log"
+        - "**/*.log.*"
+    propose:
+      category: temp
+      action: DELETE
+      risk: low
+      confidence: 0.85
+      tags: ["log"]
+      rationale: "Log files are non-critical outputs"
+
+  - id: temp.tmp
+    description: "Delete common temp files"
+    match:
+      path_glob_any:
+        - "**/*.tmp"
+        - "**/*.temp"
+        - "**/*.bak"
+        - "**/*~"
+    propose:
+      category: temp
+      action: DELETE
+      risk: low
+      confidence: 0.8
+      tags: ["temp"]
+      rationale: "Temporary/backup artifacts; safe to delete"
+
+  # -----------------------
+  # MEDIUM-RISK ARCHIVE
+  # -----------------------
+
+  - id: generic.reports.exports
+    description: "Archive derived output folders (safe default)"
+    match:
+      path_glob_any:
+        - "out"
+        - "out/**"
+        - "eii_engine/out"
+        - "eii_engine/out/**"
+        - "agent/output"
+        - "agent/output/**"
+    propose:
+      category: derived
+      action: ARCHIVE
+      risk: medium
+      confidence: 0.7
+      tags: ["reports", "output"]
+      rationale: "Derived outputs; archive by default for safety"
+
+  # -----------------------
+  # HIGH-RISK NEVER DELETE (force NOOP)
+  # -----------------------
+
+  - id: protect.source.code
+    description: "Never delete source code folders"
+    match:
+      path_glob_any:
+        - "agent/src/**"
+        - "eii_engine/**"
+        - "shared/**"
+        - "tools/**"
+    propose:
+      category: ambiguous
+      action: NOOP
+      risk: high
+      confidence: 1.0
+      tags: ["protected"]
+      rationale: "Protected source directories"

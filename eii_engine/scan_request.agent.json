@@ -1,0 +1,42 @@
+{
+  "schema_id": "aspectnova.scan_request",
+  "schema_version": "aspectnova.scan_request.v1",
+  "generated_at": "2026-01-11T00:00:00Z",
+  "context": {
+    "org_id": "org_test",
+    "workspace_id": "ws_test",
+    "device_id": "device_test_001"
+  },
+  "scan": {
+    "root": "C:\\Users\\ealihab\\OneDrive - Ericsson\\Desktop\\AspectNova\\agent",
+    "include_globs": [
+      "**/*"
+    ],
+    "exclude_globs": [
+      "**/.git/**",
+      "**/node_modules/**",
+      "**/.venv/**",
+      "**/__pycache__/**",
+      "**/.pytest_cache/**",
+      "**/dist/**",
+      "**/build/**",
+      "**/*.tmp",
+      "**/*.log"
+    ],
+    "limits": {
+      "max_files": 5000,
+      "max_depth": 12,
+      "time_budget_seconds": 20
+    },
+    "hashing": {
+      "enabled": false
+    }
+  },
+  "assumptions": {
+    "region": "SE",
+    "energy_per_tb_month_kwh": 3.0,
+    "co2_g_per_kwh": 50.0,
+    "electricity_price_sek_per_kwh": 1.5,
+    "reclaimable_fraction_default": 0.25
+  }
+}

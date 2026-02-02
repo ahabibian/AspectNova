@@ -1,0 +1,113 @@
+schema_version: cleanup_rules_v4_safe
+
+global:
+  # Anything matching these MUST NEVER be deleted or moved.
+  protected_globs:
+    # source code / configs
+    - "**/*.py"
+    - "**/*.js"
+    - "**/*.ts"
+    - "**/*.tsx"
+    - "**/*.json"
+    - "**/*.yaml"
+    - "**/*.yml"
+    - "**/*.toml"
+    - "**/*.md"
+    - "**/*.txt"
+    - "**/*.bat"
+    - "**/*.ps1"
+    - "**/*.sh"
+    - "**/.git/**"
+    - "**/.gitignore"
+    - "**/.gitattributes"
+    - "**/.github/**"
+    - "**/.venv/**"
+    - "**/__pycache__/**"
+    - "**/.pytest_cache/**"
+    - "**/*.pyc"
+    - "**/*.pyo"
+
+    # keep anything under agent/src as codebase
+    - "agent/src/**"
+    - "agent/tests/**"
+    - "eii_engine/**"
+    - "shared/**"
+    - "contracts/**"
+    - "tools/**"
+    - "docs/**"
+    - "data/**"
+
+rules:
+  # -------------------------
+  # 1) Derived outputs → ARCHIVE (safe, reversible)
+  # -------------------------
+  - id: derived.outputs.archive
+    match_any_glob:
+      - "out/**"
+      - "eii_engine/out/**"
+      - "agent/runs/**"
+    action: ARCHIVE
+    category: derived
+    risk: low
+    confidence: 0.90
+    rationale: "Derived outputs and run artifacts; archive (never delete)."
+    tags: ["derived", "output", "safe"]
+
+  # -------------------------
+  # 2) Caches → ARCHIVE (still never delete)
+  # -------------------------
+  - id: cache.archive
+    match_any_glob:
+      - "**/__pycache__/**"
+      - "**/.pytest_cache/**"
+      - "**/*.pyc"
+      - "**/*.pyo"
+    action: ARCHIVE
+    category: ephemeral
+    risk: low
+    confidence: 0.80
+    rationale: "Python caches; archive for safety (no deletion)."
+    tags: ["cache", "safe"]
+
+  # -------------------------
+  # 3) Protected → NOOP
+  # -------------------------
+  - id: protected.noop
+    match_any_glob:
+      - "agent/src/**"
+      - "agent/tests/**"
+      - "eii_engine/**"
+      - "shared/**"
+      - "contracts/**"
+      - "tools/**"
+      - "docs/**"
+      - "data/**"
+      - "**/.git/**"
+      - "**/.venv/**"
+      - "**/*.py"
+      - "**/*.json"
+      - "**/*.yaml"
+      - "**/*.yml"
+      - "**/*.toml"
+      - "**/*.md"
+      - "**/*.bat"
+      - "**/*.ps1"
+    action: NOOP
+    category: protected
+    risk: high
+    confidence: 0.99
+    rationale: "Protected sources and configs; never touch."
+    tags: ["protected"]
+
+  # -------------------------
+  # 4) Default fallback → NOOP (never delete by accident)
+  # -------------------------
+  - id: default.noop
+    match_any_glob:
+      - "**"
+    action: NOOP
+    category: ambiguous
+    risk: high
+    confidence: 0.50
+    rationale: "Fallback safety: if unsure, do nothing."
+    tags: ["fallback", "safe"]

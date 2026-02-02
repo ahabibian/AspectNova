@@ -1,0 +1,78 @@
+schema_version: cleanup_rules_v3
+
+globals:
+  default_action: NOOP
+  default_category: ambiguous
+  default_risk: high
+  default_confidence: 0.20
+
+  protect_globs:
+    - "**/*.py"
+    - "**/*.json"
+    - "**/*.yaml"
+    - "**/*.yml"
+    - "**/*.md"
+    - "**/*.txt"
+    - ".git/**"
+    - "agent/src/**"
+    - "agent/tests/**"
+    - "eii_engine/contracts/**"
+    - "shared/contracts/**"
+    - "shared/policy/**"
+
+  exclude_globs:
+    - ".aspectnova_archive/**"
+
+rules:
+
+  - id: python.cache
+    match:
+      globs:
+        - "**/__pycache__/**"
+        - "**/*.pyc"
+      kinds: ["file", "dir"]
+    decision:
+      category: ephemeral
+      action: DELETE
+      risk: low
+      confidence: 0.95
+      rationale: "Python cache"
+
+  - id: engine.outputs
+    match:
+      globs:
+        - "out/**"
+        - "eii_engine/out/**"
+      kinds: ["dir"]
+    decision:
+      category: derived
+      action: ARCHIVE
+      risk: medium
+      confidence: 0.85
+      rationale: "Generated outputs"
+
+  - id: build.artifacts
+    match:
+      globs:
+        - "**/*.egg-info/**"
+        - "**/build/**"
+        - "**/dist/**"
+      kinds: ["dir"]
+    decision:
+      category: derived
+      action: ARCHIVE
+      risk: medium
+      confidence: 0.80
+      rationale: "Build artifacts"
+
+  - id: fallback
+    match:
+      globs:
+        - "**/*"
+      kinds: ["file", "dir"]
+    decision:
+      category: ambiguous
+      action: NOOP
+      risk: high
+      confidence: 0.20
+      rationale: "Fallback"

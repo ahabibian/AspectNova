@@ -1,0 +1,1 @@
+{ "energy_impact": { "monthly": { "energy_kwh": 1.1, "co2_kg": 0.0, "cost_sek": 0.0 }, "annual": { "energy_kwh": 13.2, "co2_kg": 0.0, "cost_sek": 0.0 } }, "eii_score": { "value": 65, "grade": "B" } } 

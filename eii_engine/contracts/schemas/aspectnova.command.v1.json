@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "aspectnova.command.v1",
+  "title": "AspectNova Command (v1)",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "command_id": { "type": "string", "minLength": 1 },
+    "type": {
+      "type": "string",
+      "enum": ["DELETE", "ARCHIVE", "MOVE", "COMPRESS", "NOOP", "REVIEW"]
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "scope": { "type": "string", "enum": ["FILE", "DIRECTORY", "PROPOSAL"] },
+        "ref": { "type": "string", "minLength": 1 }
+      },
+      "required": ["scope", "ref"]
+    },
+    "rationale": { "type": "string" },
+    "expected_savings": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "energy_kwh_per_month": { "type": "number" },
+        "co2_g_per_month": { "type": "number" },
+        "storage_tb_per_month": { "type": "number" }
+      },
+      "required": ["energy_kwh_per_month", "co2_g_per_month", "storage_tb_per_month"]
+    },
+    "risk": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "level": { "type": "string", "enum": ["NONE", "LOW", "MEDIUM", "HIGH"] },
+        "notes": { "type": "string" }
+      },
+      "required": ["level"]
+    },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+  },
+  "required": ["command_id", "type", "target", "rationale", "expected_savings", "risk", "confidence"]
+}

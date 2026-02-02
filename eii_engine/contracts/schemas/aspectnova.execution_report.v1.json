@@ -1,0 +1,162 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "aspectnova.execution_report.v1",
+  "title": "AspectNova Execution Report (v1)",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_id": {
+      "type": "string",
+      "const": "aspectnova.execution_report"
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "aspectnova.execution_report.v1"
+    },
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "generated_at": { "type": "string" },
+        "executor": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "name": { "type": "string" },
+            "version": { "type": "string" }
+          },
+          "required": ["name", "version"]
+        },
+        "mode": { "type": "string" },
+        "trace_id": { "type": "string" }
+      },
+      "required": ["generated_at", "executor", "mode", "trace_id"]
+    },
+    "plan": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_id": { "type": "string" },
+        "schema_version": { "type": "string" },
+        "idempotency": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "plan_key": { "type": "string" }
+          },
+          "required": ["plan_key"]
+        },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "proposal_id": { "type": "string" },
+            "scan_id": { "type": "string" }
+          },
+          "required": ["proposal_id", "scan_id"]
+        }
+      },
+      "required": ["schema_id", "schema_version", "idempotency", "source"]
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "profile": { "type": "string" },
+        "allow_high_risk": { "type": "boolean" },
+        "require_approval_medium": { "type": "boolean" }
+      },
+      "required": ["profile", "allow_high_risk", "require_approval_medium"]
+    },
+    "results": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/result" }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "total": { "type": "integer" },
+        "will_execute": { "type": "integer" },
+        "blocked_policy": { "type": "integer" },
+        "skipped_noop": { "type": "integer" },
+        "errors": { "type": "integer" },
+        "totals": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "energy_kwh_per_month": { "type": "number" },
+            "co2_g_per_month": { "type": "number" },
+            "storage_tb_per_month": { "type": "number" }
+          },
+          "required": ["energy_kwh_per_month", "co2_g_per_month", "storage_tb_per_month"]
+        }
+      },
+      "required": ["total", "will_execute", "blocked_policy", "skipped_noop", "errors", "totals"]
+    },
+    "signatures": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "requested": { "type": "boolean" },
+        "method": { "type": "string" },
+        "key_id": { "type": "string" },
+        "signed_at": { "type": "string" },
+        "signature": { "type": "string" }
+      },
+      "required": ["requested", "method", "key_id", "signed_at", "signature"]
+    }
+  },
+  "required": ["schema_id", "schema_version", "meta", "plan", "policy", "results", "summary", "signatures"],
+  "$defs": {
+    "result": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "command_id": { "type": "string" },
+        "type": {
+          "type": "string",
+          "enum": ["DELETE", "ARCHIVE", "MOVE", "COMPRESS", "NOOP", "REVIEW"]
+        },
+        "target": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "scope": { "type": "string" },
+            "ref": { "type": "string" }
+          },
+          "required": ["scope", "ref"]
+        },
+        "decision": {
+          "type": "string",
+          "enum": ["WILL_EXECUTE", "BLOCKED_POLICY", "SKIPPED_NOOP", "ERROR", "REQUIRE_APPROVAL"]
+        },
+        "dry_run": { "type": "boolean" },
+        "message": { "type": "string" },
+        "projected_savings": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "energy_kwh_per_month": { "type": "number" },
+            "co2_g_per_month": { "type": "number" },
+            "storage_tb_per_month": { "type": "number" }
+          },
+          "required": ["energy_kwh_per_month", "co2_g_per_month", "storage_tb_per_month"]
+        },
+        "risk_level": { "type": "string", "enum": ["NONE", "LOW", "MEDIUM", "HIGH"] },
+        "confidence": { "type": "number" }
+      },
+      "required": [
+        "command_id",
+        "type",
+        "target",
+        "decision",
+        "dry_run",
+        "message",
+        "projected_savings",
+        "risk_level",
+        "confidence"
+      ]
+    }
+  }
+}

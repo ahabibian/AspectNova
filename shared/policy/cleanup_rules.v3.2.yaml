@@ -1,0 +1,70 @@
+schema_version: cleanup_rules_v3_2
+
+globals:
+  default_action: NOOP
+  protect_roots:
+    - ".git"
+    - ".venv"
+    - "agent/src"
+    - "eii_engine/contracts"
+    - "contracts"
+    - "shared"
+
+rules:
+
+  # --- PYTHON BYTECODE & CACHE ---
+  - id: python.pycache
+    match:
+      path_regex: ".*/__pycache__/.*"
+    category: ephemeral
+    action: DELETE
+    confidence: 0.95
+    rationale: "Python bytecode cache"
+
+  - id: python.pyc
+    match:
+      ext: "pyc"
+    category: ephemeral
+    action: DELETE
+    confidence: 0.95
+    rationale: "Compiled python bytecode"
+
+  - id: python.test_cache
+    match:
+      basename_in:
+        - ".pytest_cache"
+        - ".mypy_cache"
+        - ".tox"
+    category: ephemeral
+    action: DELETE
+    confidence: 0.95
+    rationale: "Python test / type-check cache"
+
+  # --- BUILD OUTPUTS ---
+  - id: build.outputs
+    match:
+      basename_in:
+        - "build"
+        - "dist"
+    category: derived
+    action: ARCHIVE
+    confidence: 0.9
+    rationale: "Build artifacts"
+
+  # --- NODE ---
+  - id: node.modules
+    match:
+      basename: "node_modules"
+    category: derived
+    action: ARCHIVE
+    confidence: 0.9
+    rationale: "Node dependencies"
+
+  # --- PROJECT OUT FOLDERS ---
+  - id: project.out
+    match:
+      basename: "out"
+    category: derived
+    action: ARCHIVE
+    confidence: 0.85
+    rationale: "Generated output folder"

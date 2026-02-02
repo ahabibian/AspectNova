@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "aspectnova.command_plan.v1",
+  "title": "AspectNova Command Plan (v1)",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_id": {
+      "type": "string",
+      "const": "aspectnova.command_plan"
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "aspectnova.command_plan.v1"
+    },
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "generated_at": { "type": "string" },
+        "engine_version": { "type": "string" },
+        "adapter_version": { "type": "string" }
+      },
+      "required": ["generated_at", "engine_version", "adapter_version"]
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "proposal_id": { "type": "string" },
+        "scan_id": { "type": "string" },
+        "proposal_schema_version": { "type": "string" }
+      },
+      "required": ["proposal_id", "scan_id", "proposal_schema_version"]
+    },
+    "idempotency": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "plan_key": { "type": "string" }
+      },
+      "required": ["plan_key"]
+    },
+    "commands": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/command" }
+    },
+    "signatures": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "requested": { "type": "boolean" },
+        "method": { "type": "string" },
+        "key_id": { "type": "string" },
+        "signed_at": { "type": "string" },
+        "signature": { "type": "string" }
+      },
+      "required": ["requested", "method", "key_id", "signed_at", "signature"]
+    }
+  },
+  "required": ["schema_id", "schema_version", "meta", "source", "idempotency", "commands", "signatures"],
+  "$defs": {
+    "command": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "command_id": { "type": "string" },
+        "type": {
+          "type": "string",
+          "enum": ["DELETE", "ARCHIVE", "MOVE", "COMPRESS", "NOOP", "REVIEW"]
+        },
+        "target": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "scope": { "type": "string" },
+            "ref": { "type": "string" }
+          },
+          "required": ["scope", "ref"]
+        },
+        "rationale": { "type": "string" },
+        "expected_savings": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "energy_kwh_per_month": { "type": "number" },
+            "co2_g_per_month": { "type": "number" },
+            "storage_tb_per_month": { "type": "number" }
+          },
+          "required": ["energy_kwh_per_month", "co2_g_per_month", "storage_tb_per_month"]
+        },
+        "risk": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "level": { "type": "string" },
+            "notes": { "type": "string" }
+          },
+          "required": ["level"]
+        },
+        "confidence": { "type": "number" }
+      },
+      "required": ["command_id", "type", "target", "rationale", "expected_savings", "risk", "confidence"]
+    }
+  }
+}

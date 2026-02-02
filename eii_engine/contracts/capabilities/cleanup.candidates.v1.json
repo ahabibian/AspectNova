@@ -1,0 +1,43 @@
+{
+  "capability_id": "cleanup.candidates",
+  "capability_version": "v1",
+  "kind": "analysis_only",
+
+  "description": "Identify cleanup candidates based on EII analysis. No destructive action is allowed. Output is for human review only.",
+
+  "inputs": {
+    "required": [
+      "scan_payload",
+      "eii_result"
+    ],
+    "schemas": {
+      "scan_payload": "aspectnova.scan_payload.v1",
+      "eii_result": "eii-result.v1"
+    }
+  },
+
+  "outputs": {
+    "schema_id": "cleanup.candidates.result.v1",
+    "description": "List of cleanup candidates grouped by heuristic rules."
+  },
+
+  "guardrails": {
+    "destructive_actions_allowed": false,
+    "requires_confirmation": true,
+    "max_candidates": 50,
+    "max_total_estimated_bytes": 5368709120,
+    "allowed_risk_levels": ["LOW", "MEDIUM"]
+  },
+
+  "semantics": {
+    "execution_mode": "REVIEW_ONLY",
+    "idempotent": true,
+    "side_effects": "NONE"
+  },
+
+  "audit": {
+    "log_inputs": true,
+    "log_outputs": true,
+    "pii_safe": true
+  }
+}

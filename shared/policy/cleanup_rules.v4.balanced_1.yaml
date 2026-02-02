@@ -1,0 +1,80 @@
+rules:
+  # ---------
+  # JUNK: Python bytecode + cache folders
+  # ---------
+  - id: junk.delete.pycache.dirs
+    enabled: true
+    match:
+      kind: dir
+      path_globs:
+        - "**/__pycache__"
+        - "**/__pycache__/**"
+    action: DELETE
+    category: derived
+    confidence: 0.95
+    rationale: "Python cache directory (__pycache__) - safe to delete."
+
+  - id: junk.delete.pyc.files
+    enabled: true
+    match:
+      kind: file
+      path_globs:
+        - "**/*.pyc"
+        - "**/*.pyo"
+    action: DELETE
+    category: derived
+    confidence: 0.95
+    rationale: "Python bytecode (*.pyc/*.pyo) - safe to delete."
+
+  # ---------
+  # JUNK: Test/tool caches
+  # ---------
+  - id: junk.delete.test.cache.dirs
+    enabled: true
+    match:
+      kind: dir
+      path_globs:
+        - "**/.pytest_cache"
+        - "**/.pytest_cache/**"
+        - "**/.mypy_cache"
+        - "**/.mypy_cache/**"
+        - "**/.ruff_cache"
+        - "**/.ruff_cache/**"
+        - "**/.tox"
+        - "**/.tox/**"
+        - "**/.cache"
+        - "**/.cache/**"
+    action: DELETE
+    category: derived
+    confidence: 0.9
+    rationale: "Tool/test cache directories - safe to delete."
+
+  # ---------
+  # JUNK: obvious temp files (ONLY by extension)
+  # ---------
+  - id: junk.delete.temp.files
+    enabled: true
+    match:
+      kind: file
+      path_globs:
+        - "**/*.tmp"
+        - "**/*.log"
+        - "**/*.bak"
+    action: DELETE
+    category: temp
+    confidence: 0.8
+    rationale: "Temporary/log/backup files - safe to delete when not explicitly protected."
+
+  # ---------
+  # DEFAULT: protect (balanced)
+  # ---------
+  - id: protected.noop
+    enabled: true
+    match:
+      kind: any
+      path_globs:
+        - "**/*"
+    action: NOOP
+    category: protected
+    confidence: 1.0
+    rationale: "Default protect: do nothing unless explicitly matched above."

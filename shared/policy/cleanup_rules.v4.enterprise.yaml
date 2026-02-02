@@ -1,0 +1,111 @@
+global:
+  # Enterprise: keep explicit protected paths (still rules-based, not a hard skip)
+  protected_path_globs: []
+  exclude_dir_globs: []
+  confidence_floor: 0.0
+
+rules:
+  # =========================
+  # ENTERPRISE GUARDRAILS
+  # =========================
+
+  - id: guard.no_delete.repo_critical_paths
+    enabled: true
+    priority: 1100
+    when:
+      path_globs:
+        - "contracts/**"
+        - "shared/**"
+        - "tools/**"
+        - "eii_engine/contracts/**"
+        - "eii_engine/tools/**"
+        - "agent/src/**"
+        - "agent/tests/**"
+    then:
+      category: protected
+      action: NOOP
+      rationale: "Enterprise guardrail: never delete critical repository paths"
+
+  - id: guard.no_delete.source_like
+    enabled: true
+    priority: 1000
+    when:
+      path_globs:
+        - "**/*.py"
+        - "**/*.md"
+        - "**/*.txt"
+        - "**/*.json"
+        - "**/*.yaml"
+        - "**/*.yml"
+        - "**/*.toml"
+        - "**/*.ini"
+        - "**/*.cfg"
+        - "**/*.bat"
+        - "**/*.ps1"
+        - "**/*.sh"
+        - "**/*.csv"
+    then:
+      category: protected
+      action: NOOP
+      rationale: "Guardrail: never delete source/config/docs"
+
+  # =========================
+  # JUNK (PATH-BASED, PRECISE)
+  # =========================
+
+  - id: junk.delete.python_bytecode.paths
+    enabled: true
+    priority: 200
+    when:
+      path_globs:
+        - "**/__pycache__/**"
+        - "**/*.pyc"
+        - "**/*.pyo"
+    then:
+      category: ephemeral
+      action: DELETE
+      rationale: "Delete Python bytecode and __pycache__ (reproducible artifacts)"
+
+  - id: junk.delete.tool_caches.paths
+    enabled: true
+    priority: 190
+    when:
+      path_globs:
+        - "**/.pytest_cache/**"
+        - "**/.mypy_cache/**"
+        - "**/.ruff_cache/**"
+        - "**/.tox/**"
+        - "**/.cache/**"
+    then:
+      category: ephemeral
+      action: DELETE
+      rationale: "Delete common tool caches (safe)"
+
+  - id: junk.delete.tempfiles.paths
+    enabled: true
+    priority: 180
+    when:
+      path_globs:
+        - "**/*.tmp"
+        - "**/*.log"
+        - "**/*.bak"
+        - "**/*.old"
+    then:
+      category: temp
+      action: DELETE
+      rationale: "Delete temp/log/backup artifacts"
+
+  # =========================
+  # DEFAULT: PROTECT
+  # =========================
+
+  - id: protected.noop
+    enabled: true
+    priority: 0
+    when:
+      path_globs:
+        - "**/*"
+    then:
+      category: protected
+      action: NOOP
+      rationale: "Default protect: do nothing unless explicitly matched above"

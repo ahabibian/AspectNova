@@ -1,0 +1,165 @@
+﻿# === REPLACE WHOLE FILE: tools/restore_archive_v1_1.py ===
+import argparse
+import hashlib
+import json
+import sys
+import zipfile
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
+
+def utc_now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def read_json(path: Path) -> Dict[str, Any]:
+    # BOM-safe read
+    return json.loads(Path(path).read_text(encoding="utf-8-sig"))
+
+
+def write_json(path: Path, obj: Any) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(obj, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def sha256_file(path: Path) -> str:
+    h = hashlib.sha256()
+    with path.open("rb") as f:
+        for chunk in iter(lambda: f.read(1024 * 1024), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def resolve_paths(root: Path, workspace_id: str, run_id: str) -> Tuple[Path, Path]:
+    archive_dir = root / ".aspectnova" / "archive" / workspace_id / run_id
+    zip_path = archive_dir / "payload.zip"
+    manifest_path = archive_dir / "manifest.json"
+    if not zip_path.exists():
+        raise FileNotFoundError(f"payload.zip not found: {zip_path}")
+    if not manifest_path.exists():
+        raise FileNotFoundError(f"manifest.json not found: {manifest_path}")
+    return zip_path, manifest_path
+
+
+def parse_args():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--root", required=True)
+    ap.add_argument("--workspace-id", required=True)
+    ap.add_argument("--run-id", required=True)
+    ap.add_argument("--out-report", required=True)
+    ap.add_argument("--execute", action="store_true")
+    ap.add_argument("--verify-sha", action="store_true")
+    return ap.parse_args()
+
+
+def restore_run(root: Path, workspace_id: str, run_id: str, out_report: Path, execute: bool, verify_sha: bool):
+    zip_path, manifest_path = resolve_paths(root, workspace_id, run_id)
+    manifest = read_json(manifest_path)
+
+    # NEW: verify payload.zip integrity itself (tamper detection)
+    if verify_sha:
+        expected_zip_sha = (manifest or {}).get("payload_zip_sha256")
+        if expected_zip_sha:
+            actual_zip_sha = sha256_file(zip_path)
+            if actual_zip_sha != expected_zip_sha:
+                report = {
+                    "schema_id": "restore-report",
+                    "schema_version": "v1.1",
+                    "generated_at": utc_now_iso(),
+                    "inputs": {
+                        "root": str(root),
+                        "workspace_id": workspace_id,
+                        "run_id": run_id,
+                        "zip_path": str(zip_path),
+                        "manifest_path": str(manifest_path),
+                    },
+                    "artifacts": {
+                        "expected_payload_zip_sha256": expected_zip_sha,
+                        "actual_payload_zip_sha256": actual_zip_sha,
+                    },
+                    "execute": execute,
+                    "verify_sha": verify_sha,
+                    "items": [],
+                    "summary": {"ok": 0, "errors": 1, "error_reason": "payload_zip_sha256_mismatch"},
+                }
+                write_json(out_report, report)
+                print(f"[ERR] payload.zip integrity failed | expected_sha={expected_zip_sha} actual_sha={actual_zip_sha}")
+                return 3
+
+    items = manifest.get("items") or []
+    results: List[Dict[str, Any]] = []
+    ok = 0
+    errors = 0
+
+    # Extract
+    if execute:
+        with zipfile.ZipFile(zip_path, "r") as zf:
+            for it in items:
+                rel_path = (it.get("rel_path") or "").replace("\\", "/")
+                expected_sha = it.get("sha256")
+                try:
+                    zf.extract(rel_path, path=str(root))
+                    abs_path = root / rel_path
+                    actual_sha = sha256_file(abs_path) if verify_sha else None
+                    status = "ok"
+                    err = None
+                    if verify_sha and expected_sha and actual_sha != expected_sha:
+                        status = "error"
+                        err = "sha256_mismatch"
+                        errors += 1
+                    else:
+                        ok += 1
+                    results.append(
+                        {
+                            "rel_path": rel_path,
+                            "status": status,
+                            "expected_sha256": expected_sha,
+                            "actual_sha256": actual_sha,
+                            "error": err,
+                        }
+                    )
+                except Exception as e:
+                    errors += 1
+                    results.append(
+                        {"rel_path": rel_path, "status": "error", "expected_sha256": expected_sha, "actual_sha256": None, "error": str(e)}
+                    )
+
+    report = {
+        "schema_id": "restore-report",
+        "schema_version": "v1.1",
+        "generated_at": utc_now_iso(),
+        "inputs": {
+            "root": str(root),
+            "workspace_id": workspace_id,
+            "run_id": run_id,
+            "zip_path": str(zip_path),
+            "manifest_path": str(manifest_path),
+        },
+        "artifacts": {},
+        "execute": execute,
+        "verify_sha": verify_sha,
+        "items": results,
+        "summary": {"ok": ok, "errors": errors},
+    }
+    write_json(out_report, report)
+    print(f"[OK] restore complete | out={out_report} | ok={ok} errors={errors}")
+    return 0 if errors == 0 else 2
+
+
+def main():
+    args = parse_args()
+    root = Path(args.root).resolve()
+    out_report = Path(args.out_report).resolve()
+    return restore_run(
+        root=root,
+        workspace_id=args.workspace_id,
+        run_id=args.run_id,
+        out_report=out_report,
+        execute=bool(args.execute),
+        verify_sha=bool(args.verify_sha),
+    )
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

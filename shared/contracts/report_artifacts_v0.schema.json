@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aspectnova.dev/schemas/report-artifacts/v0.json",
+  "title": "Report Artifacts (v0)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_id", "schema_version", "generated_at", "inputs", "policy_id", "artifacts", "summary"],
+  "properties": {
+    "schema_id": { "const": "report-artifacts" },
+    "schema_version": { "const": "v0" },
+    "generated_at": { "type": "string", "format": "date-time" },
+
+    "inputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["plan", "payload", "policy", "execution_report"],
+      "properties": {
+        "plan": { "type": "string", "minLength": 3 },
+        "payload": { "type": "string", "minLength": 3 },
+        "policy": { "type": "string", "minLength": 3 },
+        "execution_report": { "type": "string", "minLength": 3 }
+      }
+    },
+
+    "policy_id": { "type": "string", "minLength": 3 },
+
+    "artifacts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["artifact_type", "path", "source_action_count"],
+        "properties": {
+          "artifact_type": { "type": "string", "enum": ["report_md", "proposal_md"] },
+          "path": { "type": "string", "minLength": 3 },
+          "source_action_count": { "type": "integer", "minimum": 0 }
+        }
+      }
+    },
+
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["report_actions", "proposal_actions", "artifacts_written"],
+      "properties": {
+        "report_actions": { "type": "integer", "minimum": 0 },
+        "proposal_actions": { "type": "integer", "minimum": 0 },
+        "artifacts_written": { "type": "integer", "minimum": 0 }
+      }
+    }
+  }
+}

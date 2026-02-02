@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aspectnova/contracts/schemas/aspectnova.scan_result.v1.json",
+  "title": "AspectNova Scan Result (Canonical) v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_id", "schema_version", "meta", "source", "kpis", "assets"],
+  "properties": {
+    "schema_id": {
+      "type": "string",
+      "const": "aspectnova.scan_result"
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "aspectnova.scan_result.v1"
+    },
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["generated_at", "generator"],
+      "properties": {
+        "generated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "generator": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["name", "version"],
+          "properties": {
+            "name": { "type": "string", "minLength": 1 },
+            "version": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scan_id", "payload_schema_version", "payload_name"],
+      "properties": {
+        "scan_id": { "type": "string", "minLength": 6 },
+        "payload_schema_version": { "type": "string", "minLength": 3 },
+        "payload_name": { "type": "string", "minLength": 1 }
+      }
+    },
+    "kpis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "storage_bytes_total",
+        "storage_bytes_candidate",
+        "energy_kwh_per_month",
+        "co2_g_per_month"
+      ],
+      "properties": {
+        "storage_bytes_total": { "type": "number", "minimum": 0 },
+        "storage_bytes_candidate": { "type": "number", "minimum": 0 },
+        "energy_kwh_per_month": { "type": "number", "minimum": 0 },
+        "co2_g_per_month": { "type": "number", "minimum": 0 }
+      }
+    },
+    "assets": {
+      "type": "array",
+      "minItems": 0,
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["ref", "size_bytes"],
+        "properties": {
+          "ref": { "type": "string", "minLength": 1 },
+          "size_bytes": { "type": "number", "minimum": 0 },
+          "ext": { "type": "string" },
+          "mime": { "type": "string" },
+          "last_accessed": { "type": "string" },
+          "candidate": { "type": "boolean" },
+          "reasons": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "notes": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

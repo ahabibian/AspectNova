@@ -1,0 +1,27 @@
+{
+  "audit": {
+    "api_version": "scan.import.v1",
+    "request_id": "test-ui-0001",
+    "agent_name": "ui-import",
+    "agent_version": "1.0.0",
+    "received_at": "2026-01-06T10:00:00.000Z",
+    "device_id": "DEV-TEST-001"
+  },
+  "facts": {
+    "total_size_bytes": 9817221908,
+    "files_scanned": 2482,
+    "energy_kwh": 0,
+    "co2_kg": 0,
+    "cost_sek": 0
+  },
+  "kpis": {
+    "__schema": "kpis.v2",
+    "meta": {
+      "imported_at": "2026-01-06T10:00:00.000Z"
+    },
+    "storage": {
+      "total_size_bytes": 9817221908,
+      "files_scanned": 2482
+    }
+  }
+}

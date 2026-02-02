@@ -1,0 +1,122 @@
+﻿$path = "shared\policy\cleanup_rules.v4.balanced_3.archive_first.yaml"
+New-Item -ItemType Directory -Force -Path (Split-Path $path) | Out-Null
+
+@'
+schema_version: cleanup_rules_v4
+
+global:
+  protected_path_globs: []
+  exclude_dir_globs: []
+  confidence_floor: 0.0
+
+rules:
+  # -------------------------
+  # Guardrails (tight scope)
+  # -------------------------
+  - id: guard.no_delete.repo_critical_paths
+    action: NOOP
+    category: protected
+    priority: 1000
+    path_globs:
+      - "agent/src/**"
+      - "agent/tests/**"
+      - "eii_engine/**"
+      - "shared/**"
+      - "contracts/**"
+      - "docs/**"
+      - ".gitignore"
+      - "**/.gitignore"
+      - "pyproject.toml"
+      - "**/pyproject.toml"
+    rationale: "Guardrail (path-based): protect source/core folders + critical files."
+
+  - id: guard.no_delete.vcs_and_env_dirs
+    action: NOOP
+    category: protected
+    priority: 900
+    path_globs:
+      - ".git/**"
+      - "**/.git/**"
+      - ".venv/**"
+      - "**/.venv/**"
+      - "node_modules/**"
+      - "**/node_modules/**"
+    rationale: "Guardrail: do not touch VCS/venv/node_modules."
+
+  # ------------------------------------------
+  # Junk handling (ARCHIVE-first, allowed scopes)
+  # ------------------------------------------
+  - id: junk.archive.pyc.files.allowed_scopes
+    action: ARCHIVE
+    category: derived
+    priority: 200
+    path_globs:
+      - "tmp/**/*.pyc"
+      - "out/**/*.pyc"
+      - "agent/runs/**/*.pyc"
+      - "agent/.aspectnova_archive/**/*.pyc"
+      - "eii_engine/out/**/*.pyc"
+    rationale: "Archive .pyc only in allowed disposable scopes."
+
+  - id: junk.archive.pycache.dirs.allowed_scopes
+    action: ARCHIVE
+    category: derived
+    priority: 190
+    path_globs:
+      - "tmp/**/__pycache__/**"
+      - "out/**/__pycache__/**"
+      - "agent/runs/**/__pycache__/**"
+      - "agent/.aspectnova_archive/**/__pycache__/**"
+      - "eii_engine/out/**/__pycache__/**"
+    rationale: "Archive __pycache__ only in allowed disposable scopes."
+
+  - id: junk.archive.temp_logs.allowed_scopes
+    action: ARCHIVE
+    category: temp
+    priority: 180
+    path_globs:
+      - "tmp/**/*.tmp"
+      - "tmp/**/*.log"
+      - "out/**/*.tmp"
+      - "out/**/*.log"
+      - "agent/runs/**/*.tmp"
+      - "agent/runs/**/*.log"
+      - "agent/.aspectnova_archive/**/*.tmp"
+      - "agent/.aspectnova_archive/**/*.log"
+    rationale: "Archive temp/log files only in allowed scopes."
+
+  - id: junk.archive.tool_caches.allowed_scopes
+    action: ARCHIVE
+    category: derived
+    priority: 170
+    path_globs:
+      - "tmp/**/.pytest_cache/**"
+      - "out/**/.pytest_cache/**"
+      - "agent/runs/**/.pytest_cache/**"
+      - "agent/.aspectnova_archive/**/.pytest_cache/**"
+      - "tmp/**/.mypy_cache/**"
+      - "out/**/.mypy_cache/**"
+      - "agent/runs/**/.mypy_cache/**"
+      - "agent/.aspectnova_archive/**/.mypy_cache/**"
+      - "tmp/**/.ruff_cache/**"
+      - "out/**/.ruff_cache/**"
+      - "agent/runs/**/.ruff_cache/**"
+      - "agent/.aspectnova_archive/**/.ruff_cache/**"
+      - "tmp/**/.cache/**"
+      - "out/**/.cache/**"
+      - "agent/runs/**/.cache/**"
+      - "agent/.aspectnova_archive/**/.cache/**"
+    rationale: "Archive tool caches only in allowed disposable scopes."
+
+  # Default fallback
+  - id: protected.noop
+    action: NOOP
+    category: protected
+    priority: -100
+    path_globs:
+      - "**"
+    rationale: "Default: do nothing unless explicitly matched above."
+'@ | Set-Content -Encoding UTF8 $path
+
+"CREATED $path"
+python -c "import yaml, pathlib; p=pathlib.Path(r'shared\policy\cleanup_rules.v4.balanced_3.archive_first.yaml'); yaml.safe_load(p.read_text(encoding='utf-8')); print('YAML_OK', p.name)"

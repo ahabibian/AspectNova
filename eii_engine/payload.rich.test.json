@@ -1,0 +1,100 @@
+{
+  "schema_version": "aspectnova.scan_payload.v1",
+  "meta": {
+    "sent_at": "2026-01-08T01:30:00Z",
+    "producer": {
+      "agent_id": "agent-test-001",
+      "agent_version": "0.1.0"
+    }
+  },
+  "context": {
+    "org_id": "org_test",
+    "workspace_id": "ws_test",
+    "device_id": "device_test_001",
+    "device_owner_principal_id": "user_local_01"
+  },
+  "policy": {
+    "data_level": "L1",
+    "path_handling": "classified",
+    "content_allowed": false,
+    "fuzzy_hash_allowed": true
+  },
+  "idempotency": {
+    "key": "test-device-001-scan-002"
+  },
+  "scan": {
+    "scan_id": "scan_test_002",
+    "started_at": "2026-01-08T01:20:00Z",
+    "finished_at": "2026-01-08T01:30:00Z",
+    "summary": {
+      "files_seen": 12,
+      "dirs_seen": 4,
+      "bytes_scanned": 21474836480,
+      "errors_count": 0,
+      "hash_coverage_ratio": 0.95,
+      "fuzzy_hash_coverage_ratio": 0.60
+    },
+    "kpis": {
+      "scan": {
+        "files_count": 12,
+        "total_size_gb": 20.0
+      },
+      "hints": {
+        "duplicate_suspected": true,
+        "large_files_suspected": true,
+        "old_files_suspected": true
+      }
+    },
+    "items": [
+      {
+        "file_id": "f_1b3d9a0c7a5e1f2d",
+        "size_bytes": 7340032000,
+        "type_hint": { "ext": "mp4", "mime": "video/mp4" },
+        "timestamps": { "modified_at": "2023-01-01T12:00:00Z" },
+        "location_class": "videos",
+        "hashes": { "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" },
+        "signals": {
+          "age_bucket_days": 900,
+          "risk_flags": ["very_large"]
+        }
+      },
+      {
+        "file_id": "f_2c4eaa0d8b6f3a19",
+        "size_bytes": 7340032000,
+        "type_hint": { "ext": "mp4", "mime": "video/mp4" },
+        "timestamps": { "modified_at": "2023-01-02T12:00:00Z" },
+        "location_class": "videos",
+        "hashes": { "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" },
+        "signals": {
+          "duplicate_cluster_id": "dup_cluster_001",
+          "age_bucket_days": 899,
+          "risk_flags": ["very_large"]
+        }
+      },
+      {
+        "file_id": "f_9f0a1b2c3d4e5f67",
+        "size_bytes": 2147483648,
+        "type_hint": { "ext": "zip", "mime": "application/zip" },
+        "timestamps": { "modified_at": "2022-06-01T09:00:00Z" },
+        "location_class": "downloads",
+        "hashes": { "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" },
+        "signals": {
+          "age_bucket_days": 1300,
+          "risk_flags": ["very_large", "temp_like"]
+        }
+      },
+      {
+        "file_id": "f_0a0b0c0d0e0f1011",
+        "size_bytes": 524288000,
+        "type_hint": { "ext": "log", "mime": "text/plain" },
+        "timestamps": { "modified_at": "2021-01-01T00:00:00Z" },
+        "location_class": "app_cache",
+        "hashes": { "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc" },
+        "signals": {
+          "age_bucket_days": 1800,
+          "risk_flags": ["cache_like"]
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,144 @@
+{
+  "schema_id": "cleanup-targets",
+  "schema_version": "v1.1",
+  "generated_at": "2026-01-30T23:24:27.560624Z",
+  "root": "C:\\Users\\ealihab\\OneDrive - Ericsson\\Desktop\\AspectNova\\.tmp_e2e_ws_full",
+  "inputs": {
+    "scan_path": "C:\\Users\\ealihab\\OneDrive - Ericsson\\Desktop\\AspectNova\\.tmp_e2e_ws_full\\scan_result.items.json",
+    "policy_path": "C:\\Users\\ealihab\\OneDrive - Ericsson\\Desktop\\AspectNova\\shared\\policy\\cleanup_rules.v4.balanced_3.archive_first.yaml"
+  },
+  "summary": {
+    "targets_total": 2,
+    "by_action": {
+      "DELETE": 0,
+      "ARCHIVE": 2,
+      "MOVE": 0,
+      "NOOP": 0
+    },
+    "matcher": "globstar-regex"
+  },
+  "targets": [
+    {
+      "action": "ARCHIVE",
+      "rel_path": "tmp/old.log",
+      "path": "tmp/old.log",
+      "matched_rule": "junk.delete.temp_logs.allowed_scopes",
+      "ext": ".log",
+      "size_bytes": 14,
+      "decision_trace": {
+        "matcher": "globstar-regex",
+        "matched_rule": "junk.delete.temp_logs.allowed_scopes",
+        "reason_codes": [
+          "junk.delete.temp_logs.allowed_scopes"
+        ],
+        "risk_bucket": "B",
+        "provenance_summary": {
+          "engine": "aspectnova.dw.extractor",
+          "schema_version": "v1.1",
+          "inputs": {
+            "scan_path": "C:\\Users\\ealihab\\OneDrive - Ericsson\\Desktop\\AspectNova\\.tmp_e2e_ws_full\\scan_result.items.json",
+            "policy_path": "C:\\Users\\ealihab\\OneDrive - Ericsson\\Desktop\\AspectNova\\shared\\policy\\cleanup_rules.v4.balanced_3.archive_first.yaml"
+          },
+          "evidence": {
+            "rule_id": "junk.delete.temp_logs.allowed_scopes",
+            "action": "ARCHIVE",
+            "ext": ".log",
+            "size_bytes": 14
+          }
+        }
+      }
+    },
+    {
+      "action": "ARCHIVE",
+      "rel_path": "tmp/test.tmp",
+      "path": "tmp/test.tmp",
+      "matched_rule": "junk.delete.temp_logs.allowed_scopes",
+      "ext": ".tmp",
+      "size_bytes": 14,
+      "decision_trace": {
+        "matcher": "globstar-regex",
+        "matched_rule": "junk.delete.temp_logs.allowed_scopes",
+        "reason_codes": [
+          "junk.delete.temp_logs.allowed_scopes"
+        ],
+        "risk_bucket": "B",
+        "provenance_summary": {
+          "engine": "aspectnova.dw.extractor",
+          "schema_version": "v1.1",
+          "inputs": {
+            "scan_path": "C:\\Users\\ealihab\\OneDrive - Ericsson\\Desktop\\AspectNova\\.tmp_e2e_ws_full\\scan_result.items.json",
+            "policy_path": "C:\\Users\\ealihab\\OneDrive - Ericsson\\Desktop\\AspectNova\\shared\\policy\\cleanup_rules.v4.balanced_3.archive_first.yaml"
+          },
+          "evidence": {
+            "rule_id": "junk.delete.temp_logs.allowed_scopes",
+            "action": "ARCHIVE",
+            "ext": ".tmp",
+            "size_bytes": 14
+          }
+        }
+      }
+    }
+  ],
+  "items": [
+    {
+      "action": "ARCHIVE",
+      "rel_path": "tmp/old.log",
+      "path": "tmp/old.log",
+      "matched_rule": "junk.delete.temp_logs.allowed_scopes",
+      "ext": ".log",
+      "size_bytes": 14,
+      "decision_trace": {
+        "matcher": "globstar-regex",
+        "matched_rule": "junk.delete.temp_logs.allowed_scopes",
+        "reason_codes": [
+          "junk.delete.temp_logs.allowed_scopes"
+        ],
+        "risk_bucket": "B",
+        "provenance_summary": {
+          "engine": "aspectnova.dw.extractor",
+          "schema_version": "v1.1",
+          "inputs": {
+            "scan_path": "C:\\Users\\ealihab\\OneDrive - Ericsson\\Desktop\\AspectNova\\.tmp_e2e_ws_full\\scan_result.items.json",
+            "policy_path": "C:\\Users\\ealihab\\OneDrive - Ericsson\\Desktop\\AspectNova\\shared\\policy\\cleanup_rules.v4.balanced_3.archive_first.yaml"
+          },
+          "evidence": {
+            "rule_id": "junk.delete.temp_logs.allowed_scopes",
+            "action": "ARCHIVE",
+            "ext": ".log",
+            "size_bytes": 14
+          }
+        }
+      }
+    },
+    {
+      "action": "ARCHIVE",
+      "rel_path": "tmp/test.tmp",
+      "path": "tmp/test.tmp",
+      "matched_rule": "junk.delete.temp_logs.allowed_scopes",
+      "ext": ".tmp",
+      "size_bytes": 14,
+      "decision_trace": {
+        "matcher": "globstar-regex",
+        "matched_rule": "junk.delete.temp_logs.allowed_scopes",
+        "reason_codes": [
+          "junk.delete.temp_logs.allowed_scopes"
+        ],
+        "risk_bucket": "B",
+        "provenance_summary": {
+          "engine": "aspectnova.dw.extractor",
+          "schema_version": "v1.1",
+          "inputs": {
+            "scan_path": "C:\\Users\\ealihab\\OneDrive - Ericsson\\Desktop\\AspectNova\\.tmp_e2e_ws_full\\scan_result.items.json",
+            "policy_path": "C:\\Users\\ealihab\\OneDrive - Ericsson\\Desktop\\AspectNova\\shared\\policy\\cleanup_rules.v4.balanced_3.archive_first.yaml"
+          },
+          "evidence": {
+            "rule_id": "junk.delete.temp_logs.allowed_scopes",
+            "action": "ARCHIVE",
+            "ext": ".tmp",
+            "size_bytes": 14
+          }
+        }
+      }
+    }
+  ]
+}
