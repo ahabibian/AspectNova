@@ -34,3 +34,7 @@ runtime_workspace/
 *.bak
 *.bak.*
 '@ | Set-Content -Encoding ascii .gitignore
+# --- generated / local ---
+agent/src/agent.egg-info/
+*.egg-info/
+tools/_archive_legacy/
