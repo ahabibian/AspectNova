@@ -9,7 +9,7 @@ sys.path.insert(0, str(_Path(__file__).resolve().parents[1]))
 # (This file is based on your uploaded version, patched to:
 #  1) store payload_zip_sha256 in manifest.json
 #  2) store zip_sha256 in execution_report
-#  3) include provenance_summary + artifacts in trace_contract)
+# Ensure trace contract includes provenance metadata required by audit and restore flows
 
 import argparse
 import base64
@@ -127,7 +127,6 @@ def archive_action(
             zf.write(abs_path, arcname=rel_path)
             item_results.append({"rel_path": rel_path, "status": "ok", "error": None})
 
-    # NEW: hash the zip itself (tamper detection)
     payload_zip_sha256 = sha256_file(zip_path)
 
     freed_total = 0
@@ -158,7 +157,6 @@ def archive_action(
 
 
 def write_trace_contract(root: Path, workspace_id: str, run_id: str, report_path: Path) -> Path:
-    # NEW: include provenance_summary + artifacts so tests and org-grade traceability pass
     paths = WorkspacePaths(root=root, workspace_id=workspace_id, run_id=run_id)
     contracts_dir = paths.contracts_dir
     ensure_dir(contracts_dir)
@@ -167,7 +165,6 @@ def write_trace_contract(root: Path, workspace_id: str, run_id: str, report_path
 
     report = read_json(str(report_path)) if report_path.exists() else {}
 
-    # --- Gate 4 fix: reason_counts + risk_bucket_counts ---
     # Build counts from report.items[].decision_trace
     items = report.get("items") or []
     if not isinstance(items, list):
@@ -384,7 +381,6 @@ def main():
 
     write_json(str(out_report), report)
 
-    # Trace contract (now org-grade)
     write_trace_contract(root=root, workspace_id=workspace_id, run_id=run_id, report_path=out_report)
 
     print(f"[OK] archive run complete | archived_ok={sum(1 for x in item_results if x.get('status')=='ok')} | payload={zip_path}")

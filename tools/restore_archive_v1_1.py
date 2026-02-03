@@ -69,7 +69,6 @@ def restore_run(root: Path, workspace_id: str, run_id: str, out_report: Path, ex
     zip_path, manifest_path = resolve_paths(root, workspace_id, run_id)
     manifest = read_json(manifest_path)
 
-    # NEW: verify payload.zip integrity itself (tamper detection)
     if verify_sha:
         expected_zip_sha = (manifest or {}).get("payload_zip_sha256")
         if expected_zip_sha:
