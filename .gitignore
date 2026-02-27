@@ -56,3 +56,10 @@ agent/tools/dev/devguard.*.json
 agent/tools/dev/dev.ps1
 agent/tools/dev/patch.ps1
 agent/agent/
+
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
