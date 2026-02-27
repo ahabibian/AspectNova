@@ -1,0 +1,10 @@
+#!/bin/sh
+echo "== DV GATE (pre-commit) =="
+powershell -NoProfile -ExecutionPolicy Bypass -File ./dv.ps1 gate
+code=$?
+if [ $code -ne 0 ]; then
+  echo "BLOCKED: DV gate failed (exit=$code)"
+  exit $code
+fi
+echo "OK: DV gate passed"
+exit 0
