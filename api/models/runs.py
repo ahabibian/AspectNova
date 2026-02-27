@@ -1,39 +1,27 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
+from typing import Any, Dict, Optional
 from pydantic import BaseModel, Field
-from typing import Literal, Optional, Dict, Any
 
-RunMode = Literal["safe", "full"]
 
-class RunCreateRequest(BaseModel):
-    root: str = Field(..., description="Filesystem root where .aspectnova lives / or target root")
-    mode: RunMode = Field(..., description="safe=execute only, full=extract+execute")
-    # full mode inputs:
-    scan_path: Optional[str] = Field(None, description="Path to scan_result.json (or scan payload) for extractor")
-    # both modes:
-    rules_path: str = Field(..., description="Path to policy YAML used by executor/extractor")
-    # safe mode input:
-    targets_path: Optional[str] = Field(None, description="Path to cleanup_targets.json for safe mode")
-    # execution behavior:
-    execute: bool = Field(False, description="If true, performs actions; otherwise dry-run/safe")
-    safe_mode: bool = Field(True, description="Passed to executor to enforce safety semantics")
-    archive_base: Optional[str] = Field(None, description="Optional override for archive base dir")
+class CreateRunRequest(BaseModel):
+    root: str = Field(..., description="Absolute project root path.")
+    scan_path: str
+    rules_path: str
+    mode: str = Field("safe", description="safe|full")
+    execute: bool = False
+    safe_mode: bool = True
 
-    # run identity:
-    run_id: Optional[str] = Field(None, description="If provided, use this run_id; else auto-generated")
 
-class RunCreateResponse(BaseModel):
+class CreateRunResponse(BaseModel):
     workspace_id: str
     run_id: str
     status: str
+
 
 class RunStatusResponse(BaseModel):
     workspace_id: str
     run_id: str
     status: str
-    created_at: str
-    updated_at: str
-    request: Dict[str, Any]
-    artifacts: Dict[str, Any]
-    logs: Dict[str, Any]
-    error: Optional[str] = None
+    detail: Optional[str] = None
+    artifacts: Dict[str, Any] = {}

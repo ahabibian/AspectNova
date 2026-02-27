@@ -1,19 +1,24 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
+requires = ["setuptools>=69", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "agent"
-version = "0.1.0"
-description = "File scanning agent with schema-first config and versioned outputs"
-requires-python = ">=3.10"
+name = "aspectnova-agent"
+version = "0.3.0"
+description = "AspectNova Agent"
+readme = "README.md"
+requires-python = ">=3.11"
 dependencies = [
   "pyyaml>=6.0",
   "jsonschema>=4.22",
 ]
+
+[project.scripts]
+aspectnova = "aspectnova_agent.cli:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
+include = ["aspectnova_agent*"]

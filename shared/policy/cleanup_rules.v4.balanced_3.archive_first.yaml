@@ -1,100 +1,78 @@
-schema_version: cleanup_rules_v4
-global:
-  protected_path_globs: []
-  exclude_dir_globs: []
-  confidence_floor: 0.0
-rules:
-- id: guard.no_delete.repo_critical_paths
-  action: NOOP
-  category: protected
-  priority: 1000
-  path_globs:
-  - agent/src/**
-  - agent/tests/**
-  - eii_engine/**
-  - shared/**
-  - contracts/**
-  - docs/**
-  - .gitignore
-  - '**/.gitignore'
-  - pyproject.toml
-  - '**/pyproject.toml'
-  rationale: 'Guardrail: never delete/archive source/code/contracts/docs/configs.'
-- id: guard.no_delete.vcs_and_env_dirs
-  action: NOOP
-  category: protected
-  priority: 900
-  path_globs:
-  - .git/**
-  - '**/.git/**'
-  - .venv/**
-  - '**/.venv/**'
-  - node_modules/**
-  - '**/node_modules/**'
-  rationale: 'Guardrail: do not touch VCS/venv/node_modules.'
-- id: junk.delete.temp_logs.allowed_scopes
-  action: ARCHIVE
-  category: temp
-  priority: 180
-  path_globs:
-  - tmp/*.tmp - tmp/**/*.tmp
-  - tmp/*.log - tmp/**/*.log
-  - out/**/*.tmp
-  - out/**/*.log
-  - agent/runs/**/*.tmp
-  - agent/runs/**/*.log
-  - agent/.aspectnova_archive/**/*.tmp
-  - agent/.aspectnova_archive/**/*.log
-  rationale: Archive temp/log files only in allowed scopes.
-  match:
-    path_globs:
-    - tmp/*.log
-    - tmp/**/*.log
-    - tmp/*.tmp
-    - tmp/**/*.tmp
-- id: junk.delete.pyc.files.allowed_scopes
-  action: ARCHIVE
-  category: derived
-  priority: 200
-  path_globs:
-  - tmp/**/*.pyc
-  - out/**/*.pyc
-  - agent/runs/**/*.pyc
-  - agent/.aspectnova_archive/**/*.pyc
-  - eii_engine/out/**/*.pyc
-  rationale: Archive .pyc only in allowed disposable scopes.
-- id: junk.delete.pycache.dirs.allowed_scopes
-  action: ARCHIVE
-  category: derived
-  priority: 190
-  path_globs:
-  - tmp/**/__pycache__/**
-  - out/**/__pycache__/**
-  - agent/runs/**/__pycache__/**
-  - agent/.aspectnova_archive/**/__pycache__/**
-  - eii_engine/out/**/__pycache__/**
-  rationale: Archive __pycache__ only in allowed disposable scopes.
-- id: junk.delete.tool_caches.allowed_scopes
-  action: ARCHIVE
-  category: derived
-  priority: 170
-  path_globs:
-  - tmp/**/.pytest_cache/**
-  - out/**/.pytest_cache/**
-  - agent/runs/**/.pytest_cache/**
-  - agent/.aspectnova_archive/**/.pytest_cache/**
-  - tmp/**/.mypy_cache/**
-  - out/**/.mypy_cache/**
-  - agent/runs/**/.mypy_cache/**
-  - agent/.aspectnova_archive/**/.mypy_cache/**
-  - tmp/**/.ruff_cache/**
-  - out/**/.ruff_cache/**
-  - agent/runs/**/.ruff_cache/**
-  - agent/.aspectnova_archive/**/.ruff_cache/**
-  - tmp/**/.cache/**
-  - out/**/.cache/**
-  - agent/runs/**/.cache/**
-  - agent/.aspectnova_archive/**/.cache/**
-  rationale: Archive tool caches only in allowed disposable scopes.
+schema_id: cleanup-policy
+schema_version: v1.1
+policy_id: cleanup_rules.v4.balanced_3.archive_first
 
-# tamper_policy_test 2026-01-30T18:36:30.3991336+01:00
+rules:
+  - id: guard.no_delete.repo_critical_paths
+    action: NOOP
+    risk_bucket: C
+    path_globs:
+      - .gitignore
+      - README.md
+      - pyproject.toml
+      - config.v1.yaml
+      - shared/**
+      - core/**
+      - api/**
+      - tools/**
+      - tests/**
+    notes: "Protect critical repo/system files."
+
+  - id: guard.no_delete.vcs_and_env_dirs
+    action: NOOP
+    risk_bucket: C
+    path_globs:
+      - .git/**
+      - .venv/**
+      - venv/**
+    notes: "Never touch VCS or env directories."
+
+  - id: junk.delete.temp_logs.allowed_scopes
+    action: ARCHIVE
+    risk_bucket: B
+    scopes: [project]
+    path_globs:
+      - tmp/*.tmp
+      - tmp/**/*.tmp
+      - tmp/*.log
+      - tmp/**/*.log
+      - out/*.tmp
+      - out/**/*.tmp
+      - out/*.log
+      - out/**/*.log
+      - eii_engine/out/*.tmp
+      - eii_engine/out/**/*.tmp
+      - eii_engine/out/*.log
+      - eii_engine/out/**/*.log
+      - agent/runs/**/*.tmp
+      - agent/runs/**/*.log
+    notes: "Temporary files and logs should be archived first."
+
+  - id: junk.delete.pycache.dirs.allowed_scopes
+    action: ARCHIVE
+    risk_bucket: B
+    scopes: [project]
+    path_globs:
+      - __pycache__/**
+      - "**/__pycache__/**"
+    notes: "Archive python cache directories (including root-level __pycache__)."
+
+  - id: junk.delete.pyc.files.allowed_scopes
+    action: ARCHIVE
+    risk_bucket: B
+    scopes: [project]
+    path_globs:
+      - __pycache__/**/*.pyc
+      - "**/__pycache__/**/*.pyc"
+    exts: [.pyc]
+    notes: "Archive compiled python artifacts."
+
+  - id: junk.delete.tool_caches.allowed_scopes
+    action: ARCHIVE
+    risk_bucket: B
+    scopes: [project]
+    path_globs:
+      - .pytest_cache/**
+      - .mypy_cache/**
+      - .ruff_cache/**
+    notes: "Archive tool caches."

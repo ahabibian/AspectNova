@@ -1,15 +1,4 @@
-schema_version: config_v1
-
-output:
-  dir: output
-
-scan:
-  roots:
-    - "./"
+﻿scan:
+  exclude_dirs: ["node_modules", ".git", ".venv", "__pycache__"]
   include_extensions: []
-  exclude_dirs:
-    - node_modules
-    - .git
-    - .venv
-    - __pycache__
   hash_max_bytes: 0

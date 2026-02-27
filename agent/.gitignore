@@ -37,3 +37,9 @@ runs/
 # --- Secrets / env ---
 .env
 .env.*
+
+_archive_bak/
+*.bak*
+_tmp_*.log
+__pycache__/
+
