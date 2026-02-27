@@ -1,0 +1,16 @@
+{
+  "forbidden_ps_patterns": [
+    "\\bSet-Content\\b",
+    "\\bOut-File\\b",
+    "\\bAdd-Content\\b",
+    ">>"
+  ],
+  "scan_globs": [
+    "tools/**/*.ps1",
+    "*.ps1"
+  ],
+  "exceptions": [
+    "tools/ps_toolkit.ps1",
+    "tools/toolkit.ps1"
+  ]
+}

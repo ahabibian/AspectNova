@@ -1,0 +1,12 @@
+{
+  "policy_version": "1.0.0",
+  "stage": "owner_enricher",
+  "requirements": {
+    "max_owner_fail_rate": 1.0,
+    "max_access_denied": 999999,
+    "max_other_error": 999999
+  },
+  "rules": {
+    "max_fail_rate": 1.0
+  }
+}

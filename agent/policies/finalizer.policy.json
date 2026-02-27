@@ -1,0 +1,13 @@
+{
+  "policy_version": "1.0.0",
+  "requirements": {
+    "must_have_upstream_gates": [
+      "evidence_pack",
+      "verdict",
+      "command_plan",
+      "approval",
+      "execution",
+      "integrity"
+    ]
+  }
+}

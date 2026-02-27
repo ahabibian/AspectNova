@@ -1,0 +1,9 @@
+{
+  "policy_version": "1.0.0",
+  "requirements": {
+    "max_missing_files": 0,
+    "max_hash_mismatch": 0,
+    "max_missing_gate_files": 0,
+    "max_gate_fail": 0
+  }
+}

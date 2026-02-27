@@ -1,0 +1,7 @@
+{
+  "policy_version": "1.0.0",
+  "stage": "scan_normalizer",
+  "requirements": {
+    "schema_id": "aspectnova.scan.canonical.v1"
+  }
+}

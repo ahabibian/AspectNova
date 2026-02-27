@@ -1,0 +1,6 @@
+{
+  "policy_version": "1.0.0",
+  "requirements": {
+    "min_actions": 1
+  }
+}

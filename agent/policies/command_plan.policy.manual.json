@@ -1,0 +1,8 @@
+{
+  "policy_version": "1.0.0",
+  "requirements": {
+    "min_actions": 1,
+    "max_owner_fail_rate": 1.0,
+    "max_requires_approval": 999999
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "stage": "owner_enricher",
+  "version": "1.0.0",
+  "rules": {
+    "max_fail_rate": 0.005,
+    "blocking_error_codes": [
+      "access_denied",
+      "other_error"
+    ],
+    "non_blocking_error_codes": [
+      "not_found"
+    ]
+  }
+}

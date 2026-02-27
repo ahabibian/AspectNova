@@ -1,0 +1,8 @@
+{
+  "policy_version": "1.0.0",
+  "requirements": {
+    "require_upstream_ok": true,
+    "require_decision": "APPROVE",
+    "require_hashes": true
+  }
+}

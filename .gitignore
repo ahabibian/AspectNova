@@ -44,3 +44,14 @@ tools/_archive_legacy/
 agent/src/agent.egg-info/
 *.egg-info/
 tools/_archive_legacy/
+
+# DV toolchain artifacts (generated / temporary)
+.tmp_tree_*.txt
+sandbox_execute_test/
+agent/_seed_workspace/
+agent/_tmp_stages.txt
+agent/=
+agent/tools/dev/_archive/
+agent/tools/dev/devguard.*.json
+agent/tools/dev/dev.ps1
+agent/tools/dev/patch.ps1

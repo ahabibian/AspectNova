@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0.0",
+  "rules": [
+    {
+      "id": "alias_run_manifest_from_manifest_report",
+      "stage": "approval",
+      "when_missing": "runs/{RUN_ID}/output/evidence/run_manifest.json",
+      "derive_from": "runs/{RUN_ID}/output/evidence/manifest.report.json",
+      "action": "copy_text_utf8"
+    }
+  ]
+}

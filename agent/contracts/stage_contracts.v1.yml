@@ -1,0 +1,193 @@
+﻿schema_id: aspectnova.pipeline.contracts.v1
+generated_at_utc: 02/20/2026 22:17:35.ToUniversalTime().ToString("o")
+root_evidence_dir: runs/<run_id>/output/evidence
+
+stages:
+  - id: preflight
+    runner: run_preflight_stage.py
+    gate: tools/gate_preflight.py
+    policy: policies/preflight.policy.json
+    outputs:
+      canonical:
+        - preflight.report.json
+        - preflight.gate.json
+      optional: []
+    inputs:
+      required: []
+      optional: []
+    notes:
+      - "Preflight validates environment + paths before any evidence generation."
+  - id: scan_normalizer
+    outputs:
+      canonical:
+        - scan_result.canonical.json
+        - scan_result.canonical.v1.json
+      optional:
+        - evidence/scan_normalizer.gate.json
+        - evidence/_tmp_scan_normalizer.log
+  - id: owner_enricher
+    runner: stages/enrich_owner.py
+    gate: tools/gate_owner_report.py
+    policy: policies/owner_enricher.policy.json
+    outputs:
+      canonical:
+        - owner_enricher.stats.json
+        - owner_enricher.gate.json
+      optional: []
+    inputs:
+      required:
+        - scan_result.canonical.v1.json
+      optional: []
+    notes:
+      - "Owner enrichment produces stats + gate output; details depend on enrichment logic."
+
+  - id: evidence_pack
+    runner: run_evidence_pack_stage.py
+    gate: tools/gate_evidence_pack.py
+    policy: policies/evidence_pack.policy.json
+    outputs:
+      canonical:
+        - evidence_pack.v1.json
+        - evidence_pack.v1+owner.json
+        - evidence_pack.stats.json
+        - evidence_pack.gate.json
+      optional: []
+    inputs:
+      required:
+        - scan_result.canonical.v1.json
+      optional:
+        - owner_enricher.stats.json
+    notes:
+      - "Evidence pack aggregates canonical scan + optional owner info."
+
+  - id: verdict
+    runner: run_verdict_stage.py
+    gate: tools/gate_verdict.py
+    policy: policies/verdict.policy.json
+    outputs:
+      canonical:
+        - verdict.json
+        - verdict.gate.json
+      optional: []
+    inputs:
+      required:
+        - evidence_pack.v1.json
+      optional:
+        - evidence_pack.v1+owner.json
+    notes:
+      - "verdict.summary.totals.owner_fail_rate is the canonical field for downstream stages."
+
+  - id: command_plan
+    runner: run_command_plan_stage.py
+    gate: tools/gate_command_plan.py
+    policy: policies/command_plan.policy.json
+    outputs:
+      canonical:
+        - command_plan.json
+        - command_plan.report.json
+        - command_plan.sample.json
+        - command_plan.gate.json
+      optional: []
+    inputs:
+      required:
+        - verdict.json
+      optional: []
+    notes:
+      - "If verdict findings == 0, actions may be empty; gate enforces min_actions only when findings > 0."
+
+  - id: manifest
+    runner: run_manifest_stage.py
+    gate: tools/gate_manifest.py
+    policy: policies/manifest.policy.json
+    outputs:
+      canonical:
+        - manifest.report.json
+        - manifest.gate.json
+      optional:
+        - manifest.pre.report.json
+        - manifest.post.report.json
+        - manifest.json
+        - manifest.sample.json
+    inputs:
+      required:
+        - verdict.json
+        - command_plan.json
+      optional:
+        - evidence_pack.v1.json
+        - evidence_pack.v1+owner.json
+    notes:
+      - "Canonical contract artifact is manifest.report.json; phase reports are optional."
+      - "Runner writes both manifest.<phase>.report.json and manifest.report.json."
+
+  - id: execution
+    runner: run_execution_stage.py
+    gate: tools/gate_execution.py
+    policy: policies/execution.policy.json
+    outputs:
+      canonical:
+        - execution_report.json
+        - execution.gate.json
+      optional: []
+    inputs:
+      required:
+        - command_plan.json
+      optional:
+        - approval.json
+    notes:
+      - "gate_execution enforces min_actions only if command_plan.actions > 0 (ADR-004)."
+  - id: integrity
+    outputs:
+      canonical:
+        - evidence/integrity_report.json
+        - evidence/integrity.gate.json
+  - id: approval
+    runner: run_approval_stage.py
+    gate: tools/gate_approval.py
+    policy: policies/approval.policy.json
+    outputs:
+      canonical:
+        - approval.json
+        - approval.gate.json
+      optional: []
+    inputs:
+      required:
+        - command_plan.json
+      optional:
+        - integrity.report.json
+    notes:
+      - "Approval governs whether requires_approval actions can proceed."
+  - id: finalizer
+    outputs:
+      canonical:
+        - evidence/final_report.json
+        - evidence/finalizer.gate.json
+
+# ---- overrides (normalized filenames / reality-based)
+
+  - id: scan_normalizer
+    outputs:
+      canonical:
+        - scan_result.canonical.json
+        - scan_result.canonical.v1.json
+      optional:
+        - scan_normalizer.gate.json
+        - _tmp_scan_normalizer.log
+
+  - id: integrity
+    outputs:
+      canonical:
+        - integrity_report.json
+        - integrity.gate.json
+
+  - id: finalizer
+    outputs:
+      canonical:
+        - final_report.json
+        - finalizer.gate.json
+
+  - id: approval
+    outputs:
+      canonical:
+        - approval.json
+        - approval.gate.json
+

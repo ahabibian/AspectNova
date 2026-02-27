@@ -1,0 +1,9 @@
+{
+  "policy_version": "1.0.0",
+  "stage": "verdict",
+  "requirements": {
+    "max_owner_fail_rate": 0.005,
+    "max_access_denied": 0,
+    "max_other_error": 0
+  }
+}

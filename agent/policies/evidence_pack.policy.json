@@ -1,0 +1,14 @@
+{
+  "policy_version": "1.0.0",
+  "stage": "evidence_pack",
+  "requirements": {
+    "subtype_min": {
+      "asset:file": 1,
+      "observation:scan_file_meta": 1,
+      "claim:file_path_norm": 1
+    },
+    "source_min": {
+      "source:filesystem_scan": 1
+    }
+  }
+}
