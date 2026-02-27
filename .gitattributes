@@ -8,3 +8,6 @@
 *.yml  text eol=lf
 *.yaml text eol=lf
 *.md   text eol=lf
+
+# Git hooks must be LF (shell scripts break on CRLF)
+scripts/hooks/* text eol=lf
