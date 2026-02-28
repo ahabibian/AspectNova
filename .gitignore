@@ -63,3 +63,8 @@ __pycache__/
 *.pyo
 *.pyd
 *.egg-info/
+!agent/tools/dev/dev.ps1
+!agent/tools/dev/DV.Toolkit.ps1
+!agent/tools/dev/selftest.py
+!agent/tools/dev/devguard.py
+!agent/tools/dev/devguard.rules.json
