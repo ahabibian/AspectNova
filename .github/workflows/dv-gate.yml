@@ -3,7 +3,7 @@ name: DV Gate
 on:
   pull_request:
   push:
-    branches: [ "master", "main" ]
+    branches: [ "main" ]
 
 jobs:
   gate:
