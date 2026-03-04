@@ -6,6 +6,7 @@ on:
 
 jobs:
   gate:
+    name: dv-gate
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
