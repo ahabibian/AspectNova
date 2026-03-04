@@ -2,15 +2,23 @@ name: DV Gate
 
 on:
   pull_request:
+  merge_group:
   workflow_dispatch:
+
+permissions:
+  contents: read
+  statuses: write
 
 jobs:
   gate:
+    name: dv-gate
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
@@ -24,3 +32,30 @@ jobs:
         shell: pwsh
         run: |
           powershell -NoProfile -ExecutionPolicy Bypass -File .\dv.ps1 gate
+
+  report_status:
+    name: report-dv-status
+    runs-on: ubuntu-latest
+    needs: [gate]
+    if: always()
+    steps:
+      - name: Set DV status context on commit
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+          RESULT: ${{ needs.gate.result }}
+        run: |
+          if [ "$RESULT" = "success" ]; then
+            STATE="success"
+            DESC="DV Gate passed"
+          else
+            STATE="failure"
+            DESC="DV Gate failed"
+          fi
+
+          curl -sS -X POST \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/$REPO/statuses/$SHA" \
+            -d "{\"state\":\"$STATE\",\"context\":\"dv-gate\",\"description\":\"$DESC\",\"target_url\":\"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}"
