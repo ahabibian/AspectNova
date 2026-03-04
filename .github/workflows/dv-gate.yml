@@ -12,7 +12,7 @@ permissions:
 jobs:
   gate:
     name: dv-gate
-    runs-on: windows-latest
+    runs-on: windows-latest-DOES-NOT-EXIST
     steps:
       - name: Checkout
         uses: actions/checkout@v4
