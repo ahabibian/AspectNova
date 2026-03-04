@@ -33,6 +33,53 @@ jobs:
         run: |
           powershell -NoProfile -ExecutionPolicy Bypass -File .\dv.ps1 gate
 
+      # ---- Artifact (downloadable report) ----
+      - name: Locate latest DV run folder
+        if: always()
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Continue"
+
+          $repoRoot = (Resolve-Path ".").Path
+          $runsDir  = Join-Path $repoRoot "runs"
+
+          if (-not (Test-Path $runsDir)) {
+            Write-Host "No runs/ folder found. Will upload fallback patterns only."
+            "DV_RUN_DIR=" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+            exit 0
+          }
+
+          $latest = Get-ChildItem $runsDir -Directory -ErrorAction SilentlyContinue |
+            Sort-Object LastWriteTime -Descending |
+            Select-Object -First 1
+
+          if (-not $latest) {
+            Write-Host "runs/ exists but no run directories found. Will upload fallback patterns only."
+            "DV_RUN_DIR=" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+            exit 0
+          }
+
+          Write-Host "Latest DV run dir: $($latest.FullName)"
+          "DV_RUN_DIR=$($latest.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Upload DV artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dv-report-${{ github.run_id }}
+          retention-days: 14
+          if-no-files-found: warn
+          path: |
+            ${{ env.DV_RUN_DIR }}
+            runs/**/output/**/*.json
+            runs/**/output/**/*.txt
+            runs/**/output/**/*.md
+            runs/**/output/**/*.html
+            runs/**/output/**/*.csv
+            runs/**/logs/**
+            **/final_report.json
+            **/manifest*.json
+
   report_status:
     name: report-dv-status
     runs-on: ubuntu-latest
