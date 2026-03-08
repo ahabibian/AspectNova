@@ -68,3 +68,6 @@ __pycache__/
 !agent/tools/dev/selftest.py
 !agent/tools/dev/devguard.py
 !agent/tools/dev/devguard.rules.json
+__pycache__/
+*.pyc
+runs/
