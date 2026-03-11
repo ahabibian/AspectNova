@@ -1,0 +1,291 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aspectnova.se/schemas/aspectnova.cleanup_targets.v1.schema.json",
+  "title": "AspectNova Cleanup Targets v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_id", "schema_version", "generated_at", "root", "source", "targets", "summary"],
+  "properties": {
+    "schema_id": {
+      "type": "string",
+      "const": "aspectnova.cleanup_targets"
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "v1"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+
+    "root": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Scan root this target set is relative to (canonical root)."
+    },
+
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scan_result_canonical", "scan_payload"],
+      "properties": {
+        "scan_result_canonical": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Path (or logical reference) to scan_result.canonical.json used."
+        },
+        "scan_payload": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Path (or logical reference) to scan_payload.v1.json used."
+        }
+      }
+    },
+
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "targets_total",
+        "by_category",
+        "by_action",
+        "estimated_savings_bytes_total",
+        "largest_target_bytes",
+        "protected_hits"
+      ],
+      "properties": {
+        "targets_total": { "type": "integer", "minimum": 0 },
+
+        "by_category": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["ephemeral", "temp", "derived", "ambiguous"],
+          "properties": {
+            "ephemeral": { "type": "integer", "minimum": 0 },
+            "temp": { "type": "integer", "minimum": 0 },
+            "derived": { "type": "integer", "minimum": 0 },
+            "ambiguous": { "type": "integer", "minimum": 0 }
+          }
+        },
+
+        "by_action": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["DELETE", "ARCHIVE", "MOVE", "NOOP"],
+          "properties": {
+            "DELETE": { "type": "integer", "minimum": 0 },
+            "ARCHIVE": { "type": "integer", "minimum": 0 },
+            "MOVE": { "type": "integer", "minimum": 0 },
+            "NOOP": { "type": "integer", "minimum": 0 }
+          }
+        },
+
+        "estimated_savings_bytes_total": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Conservative estimate: sum of sizes for DELETE targets + optional for MOVE."
+        },
+
+        "largest_target_bytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+
+        "protected_hits": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "How many candidate paths were rejected due to global protected/excluded rules."
+        }
+      }
+    },
+
+    "targets": {
+      "type": "array",
+      "description": "Targets extracted from scan evidence and matched against cleanup_rules.",
+      "items": { "$ref": "#/$defs/target" }
+    }
+  },
+
+  "$defs": {
+    "action": {
+      "type": "string",
+      "enum": ["DELETE", "ARCHIVE", "MOVE", "NOOP"]
+    },
+
+    "risk": {
+      "type": "string",
+      "enum": ["low", "medium", "high"]
+    },
+
+    "category": {
+      "type": "string",
+      "enum": ["ephemeral", "temp", "derived", "ambiguous"]
+    },
+
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+
+    "path": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Path relative to root (POSIX-style recommended)."
+    },
+
+    "target_stats": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "exists", "size_bytes", "files", "dirs", "last_modified_utc"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["file", "dir"]
+        },
+        "exists": { "type": "boolean" },
+        "size_bytes": { "type": "integer", "minimum": 0 },
+        "files": { "type": "integer", "minimum": 0 },
+        "dirs": { "type": "integer", "minimum": 0 },
+        "last_modified_utc": {
+          "type": "string",
+          "format": "date-time",
+          "description": "UTC timestamp for audit; if unknown, set to null via extractor option."
+        }
+      }
+    },
+
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from_scan", "match_inputs", "excluded_by_global", "protected_by_global"],
+      "properties": {
+        "from_scan": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["scan_item_ids", "scan_paths"],
+          "properties": {
+            "scan_item_ids": {
+              "type": "array",
+              "items": { "type": "string", "minLength": 1 }
+            },
+            "scan_paths": {
+              "type": "array",
+              "items": { "type": "string", "minLength": 1 }
+            }
+          }
+        },
+
+        "match_inputs": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["basename", "ext", "is_dir", "is_file"],
+          "properties": {
+            "basename": { "type": "string" },
+            "ext": { "type": "string" },
+            "is_dir": { "type": "boolean" },
+            "is_file": { "type": "boolean" }
+          }
+        },
+
+        "excluded_by_global": {
+          "type": "boolean",
+          "description": "True if candidate would have been excluded (e.g., inside .venv/node_modules)."
+        },
+
+        "protected_by_global": {
+          "type": "boolean",
+          "description": "True if candidate hits protected list (src/data/assets/secrets/etc)."
+        }
+      }
+    },
+
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "category",
+        "action",
+        "risk",
+        "matched_rule",
+        "confidence",
+        "rationale",
+        "stats",
+        "evidence",
+        "tags"
+      ],
+      "properties": {
+        "path": { "$ref": "#/$defs/path" },
+
+        "category": { "$ref": "#/$defs/category" },
+        "action": { "$ref": "#/$defs/action" },
+
+        "risk": { "$ref": "#/$defs/risk" },
+
+        "matched_rule": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Rule id from cleanup_rules.v1.yaml"
+        },
+
+        "confidence": { "$ref": "#/$defs/confidence" },
+
+        "rationale": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Short audit-friendly reason for this action."
+        },
+
+        "stats": { "$ref": "#/$defs/target_stats" },
+
+        "evidence": { "$ref": "#/$defs/evidence" },
+
+        "tags": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "default": []
+        },
+
+        "proposed_destination": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Only for ARCHIVE/MOVE suggestions; executor can compute final destination too."
+        },
+
+        "notes": {
+          "type": "string",
+          "description": "Optional notes for reviewers."
+        }
+      },
+
+      "allOf": [
+        {
+          "if": {
+            "properties": { "action": { "const": "NOOP" } },
+            "required": ["action"]
+          },
+          "then": {
+            "properties": {
+              "risk": { "enum": ["high"] },
+              "category": { "enum": ["ambiguous"] }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": { "action": { "enum": ["ARCHIVE", "MOVE"] } },
+            "required": ["action"]
+          },
+          "then": {
+            "properties": {
+              "proposed_destination": { "type": "string", "minLength": 1 }
+            },
+            "required": ["proposed_destination"]
+          }
+        }
+      ]
+    }
+  }
+}
