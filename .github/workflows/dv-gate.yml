@@ -29,29 +29,10 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -e .\agent
 
-      - name: Debug Python environment
-        shell: pwsh
-        run: |
-          python --version
-          python -c "import sys; print(sys.executable)"
-          python -c "import os; print(os.getcwd())"
-          Get-ChildItem .\agent\src\dv -Recurse
-
-      - name: Verify DV import
-        shell: pwsh
-        run: |
-          $dvPath = (Resolve-Path ".\agent\src").Path
-          $env:PYTHONPATH = $dvPath
-          Write-Host "PYTHONPATH=$env:PYTHONPATH"
-          python -c "import sys; print(sys.path)"
-          python -c "import dv; print(dv.__file__)"
-
       - name: Run Data Verdict pipeline
         shell: pwsh
         run: |
-          $dvPath = (Resolve-Path ".\agent\src").Path
-          $env:PYTHONPATH = $dvPath
-          Write-Host "PYTHONPATH=$env:PYTHONPATH"
+          $env:PYTHONPATH = "agent/src"
           python -m dv run --workspace "."
 
       - name: Upload DV artifact zip
@@ -61,66 +42,7 @@ jobs:
           name: dv-artifact-${{ github.run_id }}
           retention-days: 14
           if-no-files-found: warn
-          path: |
-            runs/artifacts/*.zip
-
-      - name: Upload DV run outputs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: dv-run-output-${{ github.run_id }}
-          retention-days: 14
-          if-no-files-found: warn
-          path: |
-            runs/*/output/*.json
-            runs/*/output/*.md
-
-      # ---- Artifact (downloadable report) ----
-      - name: Locate latest DV run folder
-        if: always()
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = "Continue"
-
-          $repoRoot = (Resolve-Path ".").Path
-          $runsDir  = Join-Path $repoRoot "runs"
-
-          if (-not (Test-Path $runsDir)) {
-            Write-Host "No runs/ folder found. Will upload fallback patterns only."
-            "DV_RUN_DIR=" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-            exit 0
-          }
-
-          $latest = Get-ChildItem $runsDir -Directory -ErrorAction SilentlyContinue |
-            Sort-Object LastWriteTime -Descending |
-            Select-Object -First 1
-
-          if (-not $latest) {
-            Write-Host "runs/ exists but no run directories found. Will upload fallback patterns only."
-            "DV_RUN_DIR=" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-            exit 0
-          }
-
-          Write-Host "Latest DV run dir: $($latest.FullName)"
-          "DV_RUN_DIR=$($latest.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-
-      - name: Upload DV artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: dv-report-${{ github.run_id }}
-          retention-days: 14
-          if-no-files-found: warn
-          path: |
-            ${{ env.DV_RUN_DIR }}
-            runs/**/output/**/*.json
-            runs/**/output/**/*.txt
-            runs/**/output/**/*.md
-            runs/**/output/**/*.html
-            runs/**/output/**/*.csv
-            runs/**/logs/**
-            **/final_report.json
-            **/manifest*.json
+          path: runs/artifacts/*.zip
 
   report_status:
     name: report-dv-status

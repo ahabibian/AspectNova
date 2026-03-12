@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aspectnova.dev/schemas/execution-plan/v1.1.json",
+  "title": "Execution Plan (v1.1)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_id",
+    "schema_version",
+    "generated_at",
+    "decision_snapshot",
+    "payload_snapshot",
+    "plan",
+    "audit",
+    "data_source"
+  ],
+  "properties": {
+    "schema_id": { "const": "execution-plan" },
+    "schema_version": { "const": "v1.1" },
+    "generated_at": { "type": "string", "format": "date-time" },
+
+    "run_id": { "type": "string", "minLength": 6 },
+    "inputs": { "type": "object", "additionalProperties": true },
+
+    "data_source": {
+      "oneOf": [
+        { "type": "string" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": { "type": "string" },
+            "scan_id": { "type": "string" }
+          }
+        }
+      ]
+    },
+
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["execute", "dry_run", "notes"],
+      "properties": {
+        "execute": { "type": "boolean" },
+        "dry_run": { "type": "boolean" },
+        "executor": { "type": "string" },
+        "notes": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "decision_snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["policy_id", "priority", "risk_bucket", "confidence", "reasons"],
+      "properties": {
+        "policy_id": { "type": "string", "minLength": 3 },
+        "priority": { "type": "string", "enum": ["low", "medium", "high"] },
+        "risk_bucket": { "type": "string", "minLength": 1 },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "reasons": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "policy_snapshot": {
+      "description": "Optional. Not currently emitted by executor_v1_1.",
+      "type": "object",
+      "additionalProperties": true
+    },
+
+    "payload_snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_id", "schema_version", "kpis"],
+      "properties": {
+        "schema_id": { "type": "string" },
+        "schema_version": { "type": "string" },
+        "kpis": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "files_scanned": { "type": ["integer", "null"], "minimum": 0 },
+            "total_size_bytes": { "type": ["integer", "null"], "minimum": 0 }
+          }
+        }
+      }
+    },
+
+    "plan": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/planAction" }
+    }
+  },
+
+  "$defs": {
+    "planAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "title", "dry_run"],
+      "properties": {
+        "id": { "type": "string", "minLength": 3 },
+        "type": {
+          "type": "string",
+          "enum": ["analysis", "execution", "report", "proposal"]
+        },
+        "title": { "type": "string", "minLength": 3 },
+        "dry_run": { "type": "boolean" },
+        "inputs": { "type": "object", "additionalProperties": true },
+        "outputs": { "type": "object", "additionalProperties": true },
+        "guardrails": { "type": "object", "additionalProperties": true }
+      }
+    }
+  }
+}

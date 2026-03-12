@@ -1,0 +1,93 @@
+version: 2
+defaults:
+  # default base for stages unless overridden
+  base: evidence
+
+stages:
+  - id: preflight
+    outputs:
+      canonical:
+        - preflight.report.json
+        - preflight.gate.json
+
+  # NOTE: scan_normalizer canonical artifacts live in runs/<rid>/output (not evidence)
+  - id: scan_normalizer
+    base: output
+    outputs:
+      canonical:
+        - scan_result.canonical.json
+        - scan_result.canonical.v1.json
+      optional:
+        - _tmp_scan_normalizer.log
+        # gate lives under evidence; verifier will ignore because base=output for this stage
+        # (we verify gates via pipeline.log stage list anyway)
+
+  - id: owner_enricher
+    outputs:
+      canonical:
+        - owner_enricher.stats.json
+        - owner_enricher.gate.json
+
+  - id: evidence_pack
+    outputs:
+      canonical:
+        - evidence_pack.v1.json
+        - evidence_pack.v1+owner.json
+        - evidence_pack.stats.json
+        - evidence_pack.gate.json
+
+  - id: verdict
+    outputs:
+      canonical:
+        - verdict.json
+        - verdict.gate.json
+
+  - id: command_plan
+    outputs:
+      canonical:
+        - command_plan.json
+        - command_plan.report.json
+        - command_plan.sample.json
+        - command_plan.gate.json
+  - id: manifest_pre
+    base: evidence
+    outputs:
+      canonical:
+        - manifest.report.json
+        - manifest.gate.json
+      optional:
+        - manifest.pre.report.json
+        - manifest.json
+        - manifest.sample.json
+
+  - id: manifest_post
+    base: evidence
+    outputs:
+      canonical:
+        - manifest.report.json
+        - manifest_post.gate.json
+      optional:
+        - manifest.post.report.json
+  - id: execution
+    outputs:
+      canonical:
+        - execution_report.json
+        - execution.gate.json
+
+  - id: integrity
+    outputs:
+      canonical:
+        - integrity_report.json
+        - integrity.gate.json
+
+  - id: approval
+    outputs:
+      canonical:
+        - approval.json
+        - approval.gate.json
+
+  - id: finalizer
+    outputs:
+      canonical:
+        - final_report.json
+        - finalizer.gate.json

@@ -1,0 +1,14 @@
+DV Stable Core Baseline v1
+
+Verified:
+- selftest PASS
+- verify_contracts PASS
+- newrun PASS
+- fresh run PASS
+- rerun finalized run FAIL (anti-overwrite PASS)
+
+Reference run:
+run_20260311T231725Z_306ebcf7
+
+Reference command:
+powershell -ExecutionPolicy Bypass -File C:\dev\AspectNova\scripts\dv_integration_test.ps1

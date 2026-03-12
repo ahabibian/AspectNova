@@ -1,3 +1,10 @@
+# LEGACY NOTICE
+# This script is no longer the canonical DV command surface.
+# Canonical baseline path is routed through:
+#   - agent/dv.ps1
+#   - aspectnova_agent.cli
+#   - canonical contracts root
+# Keep only for transition. Do not add new baseline behavior here.
 param(
   [Parameter(Mandatory=$true, Position=0)]
   [ValidateSet("selftest","approve","run","newrun")]

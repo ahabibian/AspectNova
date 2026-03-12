@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aspectnova.dev/schemas/event.v1.schema.json",
+  "title": "AspectNova Canonical Event v1",
+  "type": "object",
+  "required": ["schema", "event_id", "ts", "type", "severity", "actor", "context", "payload", "integrity"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "aspectnova.event.v1"
+    },
+    "event_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "ts": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "type": {
+      "type": "string",
+      "minLength": 3
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["debug", "info", "warning", "error", "critical"]
+    },
+    "actor": {
+      "type": "object",
+      "required": ["kind", "id"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "type": "string", "enum": ["system", "user", "admin"] },
+        "id": { "type": "string", "minLength": 1 },
+        "ip": { "type": "string" },
+        "user_agent": { "type": "string" }
+      }
+    },
+    "context": {
+      "type": "object",
+      "required": [
+        "execution_id",
+        "plan_id",
+        "plan_hash",
+        "policy_version",
+        "risk_model_version",
+        "executor_version",
+        "tenant_id",
+        "environment"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "execution_id": { "type": "string", "format": "uuid" },
+        "plan_id": { "type": "string", "format": "uuid" },
+        "plan_hash": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+
+        "policy_version": { "type": "string", "minLength": 3 },
+        "risk_model_version": { "type": "string", "minLength": 3 },
+        "executor_version": { "type": "string", "minLength": 3 },
+
+        "tenant_id": { "type": "string", "minLength": 1 },
+        "environment": { "type": "string", "enum": ["dev", "staging", "prod"] },
+
+        "correlation_id": { "type": "string", "format": "uuid" },
+        "request_id": { "type": "string", "format": "uuid" },
+
+        "resource_id": { "type": "string" },
+        "resource_class": { "type": "string" }
+      }
+    },
+    "payload": {
+      "type": "object"
+    },
+    "integrity": {
+      "type": "object",
+      "required": ["algo", "hash", "signed_by"],
+      "additionalProperties": false,
+      "properties": {
+        "algo": { "type": "string", "enum": ["sha256"] },
+        "hash": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "signed_by": { "type": "string", "minLength": 1 },
+        "signature": { "type": "string" }
+      }
+    }
+  }
+}
