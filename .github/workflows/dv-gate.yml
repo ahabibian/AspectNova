@@ -29,59 +29,11 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -e .\agent
 
-<<<<<<< HEAD
-      - name: Debug Python environment
-        shell: pwsh
-        run: |
-          python --version
-          python -c "import sys; print(sys.executable)"
-          python -c "import os; print(os.getcwd())"
-          Get-ChildItem .\agent\src\dv -Recurse
-
-      - name: Verify DV import
-        shell: pwsh
-        run: |
-          $dvPath = (Resolve-Path ".\agent\src").Path
-          $env:PYTHONPATH = $dvPath
-          Write-Host "PYTHONPATH=$env:PYTHONPATH"
-          python -c "import sys; print(sys.path)"
-          python -c "import dv; print(dv.__file__)"
-
-      - name: Run Data Verdict pipeline
-        shell: pwsh
-        run: |
-          $dvPath = (Resolve-Path ".\agent\src").Path
-          $env:PYTHONPATH = $dvPath
-          Write-Host "PYTHONPATH=$env:PYTHONPATH"
-          python -m dv run --workspace "."
-
-      - name: Upload DV artifact zip
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: dv-artifact-${{ github.run_id }}
-          retention-days: 14
-          if-no-files-found: warn
-          path: |
-            runs/artifacts/*.zip
-
-      - name: Upload DV run outputs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: dv-run-output-${{ github.run_id }}
-          retention-days: 14
-          if-no-files-found: warn
-          path: |
-            runs/*/output/*.json
-            runs/*/output/*.md
-=======
       - name: Run Data Verdict pipeline
         shell: pwsh
         run: |
           $env:PYTHONPATH = "agent/src"
           python -m dv run --workspace "."
->>>>>>> bfd1706 (ci: run real DV pipeline in GitHub Actions)
 
       - name: Upload DV artifact zip
         if: always()
@@ -89,20 +41,8 @@ jobs:
         with:
           name: dv-artifact-${{ github.run_id }}
           retention-days: 14
-          if-no-files-found: error
-          path: |
-            runs/artifacts/*.zip
-
-      - name: Upload DV run outputs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: dv-run-output-${{ github.run_id }}
-          retention-days: 14
           if-no-files-found: warn
-          path: |
-            runs/*/output/*.json
-            runs/*/output/*.md
+          path: runs/artifacts/*.zip
 
   report_status:
     name: report-dv-status
